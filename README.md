@@ -1,0 +1,738 @@
+# Paycon — Landing Page (reconstrução visual)
+
+Reconstrução completa da landing page de Automações Jurídicas da Paycon
+(originalmente em `https://lp.payconautomacoes.com.br/`), preservando 100% da
+copy e do funcionamento comercial da página original, com uma nova direção
+visual premium, tecnológica e orientada por scroll (React + TypeScript + GSAP).
+
+## Objetivo
+
+Não é uma repaginação de cores: é uma reconstrução da experiência visual —
+partículas, cenas de escaneamento, cards em profundidade, mosaico tecnológico
+— mantendo intactos headline, subheadline, métricas, os 8 produtos, os 13
+depoimentos, o método em 3 passos, a história da empresa, o time, os 30
+parceiros, o formulário e o CTA final.
+
+## Stack
+
+- React 19 + TypeScript + Vite
+- GSAP 3.15 (ScrollTrigger, ScrollSmoother, SplitText — todos gratuitos desde a
+  aquisição do GSAP pela Webflow) via `@gsap/react` (`useGSAP`)
+- Canvas2D para o sistema de partículas (ver "Por que não WebGL/Three.js")
+- `@supabase/supabase-js` para reaproveitar a mesma Edge Function de leads da
+  LP original
+- lucide-react para os poucos ícones de interface
+
+## Instalação e execução
+
+```bash
+npm install
+npm run dev       # http://localhost:5173
+npm run build     # build de produção em dist/
+npm run preview   # serve o build de produção localmente
+npm run lint      # oxlint
+```
+
+`npm run build` executa `tsc -b` antes do `vite build` — qualquer erro de tipo
+quebra o build.
+
+## Processo de extração da copy
+
+A copy é 100% real, extraída da LP em produção em 2026-07-27 por três vias:
+
+1. Leitura do HTML renderizado (`WebFetch`) para headline, seções, depoimentos,
+   método, sobre, time e footer.
+2. Inspeção do DOM/rede no navegador (título, meta description/OG, scripts de
+   terceiros, requisições de imagem).
+3. Leitura do bundle JS minificado (`assets/index-*.js`) para encontrar a
+   integração real do formulário (Supabase Edge Function) e os textos exatos
+   dos campos/opções do select, que não apareciam no HTML estático.
+
+Nada foi reescrito, resumido ou inventado. Onde a página original citava um
+número (`+80%`, `15%`, `-25%`, "40 clientes", "15 anos") esse número foi
+mantido literalmente.
+
+## Onde está cada coisa
+
+| O quê | Onde |
+|---|---|
+| Toda a copy (fonte única) | `src/content/payconLandingContent.ts` |
+| Cores/tipografia/tokens | `src/styles/tokens.css` |
+| Parceiros (imagens baixadas) | `public/assets/partners/partner-<nome>.<ext>` |
+| Fotos de depoimentos | `public/assets/testimonials/testimonial-<nome>.<ext>` |
+| Fotos do time | `public/assets/team/team-<nome>.<ext>` |
+| Logo oficial (fonte) | `public/assets/identity/paycon-logo-source.jpg` (+ `Reference/`) |
+| Script de download dos assets | `scripts/download-assets.sh` |
+| Formulário + integração real | `src/components/ContactForm`, `src/lib/supabaseClient.ts` |
+| Scripts de analytics preservados | `index.html` |
+
+## Cores da marca
+
+O único arquivo de logo disponível no projeto (`Reference/311909161_..._n.jpg`)
+é um JPEG de 150×150px. As cores reais foram extraídas por amostragem de pixel
+(pixels mais escuros/puros de cada palavra, para minimizar o efeito do
+anti-aliasing e da compressão JPEG):
+
+- **Azul "PAY"**: `#22265A` (mais escuro/saturado que o provisório `#33367B`
+  do briefing)
+- **Cinza "CON"**: `#B0B0B0` (muito próximo do provisório `#BABABD`)
+
+Os dois valores provisórios do briefing ficam registrados em
+`--paycon-blue-700-brief` / `--paycon-gray-400-brief` em `tokens.css` para
+referência. **Se um arquivo vetorial (AI/SVG/EPS) do logo aparecer**, refaça a
+amostragem (ou copie os valores exatos do vetor) e atualize
+`--paycon-blue-700` / `--paycon-gray-400` — toda a paleta deriva desses dois
+tokens.
+
+### Ajustar o azul ou o cinza
+
+Edite apenas os tokens base em `tokens.css`:
+
+```css
+--paycon-blue-700: #22265a; /* toda a escala azul deriva daqui */
+--paycon-gray-400: #b0b0b0; /* toda a escala cinza deriva daqui */
+```
+
+## Tipografia
+
+Não foi encontrada nenhuma fonte proprietária da Paycon no projeto (sem
+arquivos `.woff`/`.otf`, sem CSS `@font-face` na LP original). Foi usada
+`Inter` (grotesca contemporânea, institucional) como fonte provisória para
+display e body, via a stack do sistema — sem baixar arquivo de fonte externo.
+Se a Paycon tiver uma fonte oficial, adicione os arquivos em `public/fonts/` e
+declare `@font-face` em `src/styles/typography.css`, trocando `--font-display`
+/ `--font-body` em `tokens.css`.
+
+## Arquitetura visual: um palco de partículas persistente
+
+A decisão central da experiência: **existe UM único canvas de partículas**,
+fixo cobrindo a viewport, vivo do início ao fim da página
+(`src/components/ParticleStage`).
+
+Isso é o que cria a continuidade entre cenas. As mesmas partículas que formam
+os dois dedos na hero são as que viram o scanner, as molduras dos cards, o
+mosaico, a rede de parceiros e, no fim, a logo Paycon. Nenhuma seção tem canvas
+próprio, então nada "aparece" e "desaparece" — tudo se transforma.
+
+As seções ficam acima do palco com fundo **transparente** (`main > section` em
+`globals.css`), e apenas as áreas de leitura crítica (formulário, rodapé)
+recebem fundo sólido.
+
+### Como as peças se ligam
+
+| Arquivo | Papel |
+|---|---|
+| `src/lib/particleShapes.ts` | Constrói as nuvens de pontos (dedo humano, dedo robótico, núcleo, scanner, molduras, mosaico, rede, wordmark) como `Float32Array` |
+| `src/lib/choreography.ts` | `writeTargets(fase, progresso)` → escreve os alvos em buffers **prealocados** |
+| `src/lib/stageState.ts` | Estado mutável compartilhado + cursor com damping + registries de parallax/tilt |
+| `src/components/ParticleStage` | Único loop de rAF: interpola, projeta em perspectiva, aplica cursor e desenha |
+| `src/hooks/useStageScene.ts` | Liga uma seção ao palco com UMA ScrollTrigger scrubbed |
+
+**Por que estado mutável e não React state**: as timelines escrevem a 60fps.
+Passar isso por state causaria um re-render por frame. As cenas escrevem em
+`stageState`, o loop do palco lê. Zero re-render.
+
+**Zero alocação por frame**: a versão anterior fazia `targets.map(...)` a cada
+frame por canvas, gerando churn de GC. Agora a coreografia só escreve em
+`Float32Array`s que já existem.
+
+### Contagens e custo real medido
+
+| Tier | Partículas | Custo de desenho medido |
+|---|---|---|
+| high (desktop > 1024px) | 2600 | **5,45 ms/frame** |
+| medium (≤1024px ou touch) | 1500 | 1,80 ms/frame |
+| low (≤640px) | 620 | 0,82 ms/frame |
+
+Orçamento de 60fps = 16,7 ms/frame, então o tier alto usa ~33%. Medido
+sinteticamente no navegador com a mesma aritmética por partícula (perspectiva +
+`drawImage`). Para ajustar, edite `COUNT_BY_TIER` em `ParticleStage.tsx`.
+
+O render usa **sprites de brilho pré-renderizados** com blending aditivo
+(`globalCompositeOperation = "lighter"`) em vez de `fillRect` — bem mais bonito
+e mais rápido que desenhar formas por partícula.
+
+### Timeline da hero
+
+Uma única ScrollTrigger pinada de 320vh, dividida em segmentos ponderados
+(`SEGMENTS` em `PayconHero.tsx`). Cada segmento mapeia para uma fase do palco:
+
+```
+hero-idle → hero-hands → hero-converge → hero-core → hero-entry → (scanner)
+(a fase "hero-hands" hoje forma os dois DEDOS; o nome foi mantido)
+```
+
+Tudo é **função pura do progresso do scroll**, não de eventos `onEnter` — por
+isso a cena é completamente reversível. Verificado: voltando ao topo, o estado
+retorna a `hero-idle p=0.00`.
+
+### Morph entre as formas
+
+O morph é **indexado**: a partícula `i` interpola entre a posição `i` da forma
+A e a posição `i` da forma B. Cada fase define de onde vem e para onde vai, e
+cada fase começa a partir da forma da fase anterior (ex.: a fase `cards`
+começa exatamente nas posições do `scanner`). É isso que faz cada cena nascer
+da anterior em vez de aparecer por fade.
+
+As partículas são divididas em papéis fixos (`ROLE_SPLIT`): 37% lado humano,
+37% lado tecnológico, 26% núcleo.
+
+### Os dois dedos
+
+A composição da hero é o encontro entre **um dedo humano** e **um dedo
+robótico**, com as pontas quase se tocando e um núcleo azul nascendo no vão.
+(Uma versão anterior usava duas mãos completas; elas não ficavam
+reconhecíveis, então foram substituídas.)
+
+- **Humano** (`buildHumanFinger`): silhueta **preenchida** e orgânica —
+  indicador construído por uma cadeia de círculos de raio decrescente, com leve
+  curvatura para cima, falanges sugeridas por pequenas reentrâncias e ponta
+  arredondada. Ao lado, apenas uma sugestão de nó dos dedos e dois dedos
+  dobrados, o suficiente para contextualizar sem virar mão inteira.
+  Reamostragem com densidade irregular (`organic: true`). Cinza/branco.
+- **Robótico** (`buildRobotFinger`): desenhado em **contorno** (stroke, não
+  preenchido) — base chanfrada com barramentos, pulso mecânico e três segmentos
+  articulados separados por juntas sólidas, com painel interno em cada
+  segmento. A ponta traz um nó sólido marcando o ponto de contato. Azul
+  institucional.
+
+Ambos são construídos por primitivas geométricas num canvas offscreen e
+amostrados por alpha, com ênfase de borda. **Nenhuma imagem de referência é
+traçada, mascarada ou usada como textura**, e a composição não reproduz "A
+Criação de Adão".
+
+**Como o vão entre as pontas é garantido**: as máscaras têm a ponta na borda
+direita, então a âncora de cada dedo é **derivada do vão desejado**
+(`fingerAnchorForTip` em `choreography.ts`) em vez de escolhida à mão. Assim o
+vão é exato e não varia com o aspecto da tela — importante porque é nele que o
+núcleo nasce. Verificado no navegador: 416px de vão com os dedos formados →
+328px na aproximação → **71px com o núcleo ativo** → dissolução.
+
+### Interação com o cursor — apenas local
+
+O cursor **não move mais o quadro**. Uma versão anterior aplicava rotação 3D do
+conjunto inteiro e parallax por camada, e a sensação era de cena girando e
+balançando junto com o mouse. Ambos foram removidos.
+
+O que existe hoje:
+
+1. **Fundo**: apenas uma luz ambiente radial que acompanha o cursor (≤14px).
+2. **Partículas**: campo de influência **local**, raio de 210px, com força
+   caindo em `(1 - d/r)²`. Dentro dele a partícula é deslocada (até 42px),
+   cresce, clareia e ganha uma pequena ondulação perpendicular. Cada partícula
+   guarda seu próprio deslocamento e **relaxa devagar** de volta à origem
+   (`RELEASE_RATE`), então as bolinhas voltam sozinhas em vez de saltar.
+   O lado humano é repelido e o tecnológico atraído — dualidade que reforça o
+   conceito da marca.
+3. **Nada mais**: headline, CTA, labels, moldura e câmera não respondem ao
+   cursor. A hero tem base fixa.
+
+Verificado no navegador: com o cursor na extremidade **esquerda** (longe da
+massa de partículas) o centroide fica **inalterado** (0,5763 vs 0,5762 no
+centro); todo o DOM da hero reporta `transform: none`; e partículas distantes do
+cursor variam no máximo 16px. Antes, o conjunto inteiro deslocava 84px.
+
+### Scroll tem prioridade sobre o cursor
+
+`stageState.interactionTarget` é interpolado suavemente (`interactionStrength`)
+e cada segmento de cena declara sua faixa: 1.0 em repouso na hero, ~0.25
+durante os morphs, ~0.1 na entrada de câmera, voltando a 0.85 no CTA final.
+Assim o cursor nunca tira os objetos da trajetória durante uma transição.
+
+### Como reduzir a intensidade das interações
+
+Sem tocar em lógica, três níveis:
+
+- **Cursor mais discreto**: reduza `INFLUENCE_RADIUS` (raio, padrão 210px) e
+  `MAX_PUSH` (deslocamento máximo, padrão 42px) no topo de `ParticleStage.tsx`.
+  `RELEASE_RATE` controla a velocidade de retorno. Para desligar o campo,
+  zere `MAX_PUSH`.
+- **Por cena**: baixe os valores de `interaction` nos `segments` da seção.
+- **Global**: em `stageState.ts`, fixe `interactionTarget` em um valor baixo.
+
+### Como desativar as partículas
+
+Não há Three.js nem WebGL no projeto (ver abaixo), então não há "desativar
+WebGL". Para remover o palco, apague `<ParticleStage />` de `App.tsx` — a
+página inteira continua funcionando: copy, cards, mosaico, parceiros,
+formulário e CTAs são todos DOM/CSS e não dependem do canvas para existir.
+
+**Por que Canvas2D e não WebGL/Three.js**: o briefing aceita Canvas/SVG como
+alternativa equivalente. Sem hardware de teste variado nesta sessão, Canvas2D
+foi escolhido deliberadamente: menos superfície de falha (sem contexto WebGL
+para perder, sem shaders para depurar) e comportamento previsível entre
+browsers. O custo medido acima confirma que há folga. O trade-off é a contagem
+de partículas, menor do que a de um point cloud em GPU.
+
+## Cenas e composição editorial
+
+A copy foi **relateralizada**: nenhuma cena usa mais uma coluna central longa.
+
+| Cena | Composição |
+|---|---|
+| Hero | copy à esquerda (max 46vw), massa de partículas à direita, labels nas 4 extremidades |
+| Análise | texto à esquerda, moldura de scanner à direita |
+| Soluções | pilha 3D de cards à esquerda/centro, índice + princípios P2P à direita |
+| Mosaico | copy à esquerda, bento montado por scroll à direita |
+| Parceiros | copy à esquerda, rede de logos à direita |
+| Depoimentos | copy + controles à esquerda, card à direita |
+| Método / Sobre | blocos limitados a ~40rem, deslocados para lados opostos |
+| CTA final | central, mas contido (34rem), emoldurado pelas mãos |
+
+### Cena de escaneamento
+
+Ligada ao conteúdo real de **Insights / Dados Qualificados / Baixa de
+Provisão** (`src/sections/AnalysisScene`) — as soluções da Paycon sobre análise
+e classificação de dados processuais. Não foi inventado produto para caber a
+animação. O "documento" escaneado é o próprio palco de partículas (as mesmas
+que saíram da fusão da hero); a moldura, os cantos e o feixe são DOM por cima,
+e ambos leem o **mesmo** progresso de scroll.
+
+### Cards em profundidade
+
+Não é grid nem carrossel. Os 5 cards vivem numa pilha 3D com
+`transform-style: preserve-3d`; o scroll move um índice contínuo
+(`activeFloat`) e cada card deriva profundidade, `rotateY/rotateZ`, escala,
+blur e opacidade da sua distância a esse índice. Só um fica totalmente legível
+por vez; os demais permanecem parcialmente visíveis. Em ≤960px a pilha vira
+fluxo vertical full-width (transforms são limpos em JS e o CSS assume).
+
+### Mosaico montado por scroll
+
+Os módulos não aparecem prontos: cada um chega de um plano de profundidade
+diferente (`translateZ` de -420px), de direções alternadas, com atraso próprio,
+ganhando nitidez ao encaixar.
+
+### Parceiros como rede
+
+O marquee foi removido (o briefing o proíbe). Agora linhas de conexão se
+desenham via `stroke-dashoffset`, e cada logo nasce de um **nó** que se expande.
+Todos os 30 parceiros são preservados, na ordem original, com `alt` e sem
+filtro que descaracterize a marca (dessaturado em repouso, **cor real no
+hover**).
+
+A onda de revelação é curta de propósito: parceiros são prova comercial, então
+todos precisam estar 100% visíveis enquanto a seção ainda está na tela.
+Verificado: com a seção em vista, 0 de 30 logos ficam ocultos.
+
+### Formação da logo no CTA final
+
+Abaixo do botão, as mesmas partículas que percorreram a página se reorganizam
+no wordmark **PAYCON**: primeiro se recolhem numa faixa solta, depois assumem as
+letras, e por fim um pulso estreito atravessa a logo da esquerda para a direita.
+"PAY" recebe o azul institucional e "CON" o cinza, usando o mapa `logoIsPay`
+derivado da largura real do texto. Dirigido por scroll e reversível — ao subir,
+os módulos voltam à malha e o CTA permanece acessível.
+
+O `<div className={styles.logoSlot}>` na seção é só **reserva de layout**
+(`margin-top: clamp(48px, 8vh, 120px)`, largura `clamp(180px, 24vw, 420px)`); o
+desenho vem do palco atrás, e um `<span class="sr-only">Paycon</span>` garante o
+equivalente textual para leitores de tela.
+
+**Sobre o arquivo da logo**: o wordmark é reproduzido como texto na fonte da
+marca (mesma abordagem do componente `PayconLogo`), e não amostrado do arquivo
+de imagem — o único asset disponível é um JPEG de 150×150 com fundo branco e
+forte compressão, que amostrado geraria alvos serrilhados. Se aparecer um
+vetor, `buildLogoWordmark` é o único ponto a trocar.
+
+Verificado no navegador: aos 55% da cena as 2600 partículas já estão no
+wordmark (y médio −0,51, abaixo do centro) e aos 68% as cores da marca entram —
+**1228 partículas azuis (PAY) + 1372 cinzas (CON)**. A logo fica 90px abaixo do
+botão.
+
+## Como as seções mapeiam para o conteúdo original
+
+A ordem visual foi reorganizada (permitido pelo briefing, seção 1) para seguir
+a progressão narrativa "dois universos se aproximam → Paycon conecta → dados
+são processados → soluções → parceiros → contato": o formulário de lead, que
+na LP original aparece no meio da página, foi posicionado ao lado do CTA final
+(ambos são pedidos de contato, fazem sentido juntos no fechamento). Nenhum
+texto foi removido — apenas reposicionado.
+
+| Ordem na página nova | Conteúdo original |
+|---|---|
+| `PayconHero` | Hero (headline, subheadline, CTA) |
+| `PartnersScene` | Logos de clientes |
+| `AnalysisScene` (`#solucoes`) | Insights, Baixa de Provisão, Dados Qualificados |
+| `SolutionsScene` | Contratos, Contencioso, esocialPro, Controladoria, Societário |
+| `TechnologyScene` (`#diferenciais`) | Métricas + Diferenciais |
+| `TestimonialsScene` (`#depoimentos`) | 13 depoimentos |
+| `MethodScene` (`#metodo`) | Método Paycon (3 passos) |
+| `AboutScene` (`#sobre`) | Sobre + time (3 sócios) |
+| `FinalContactScene` (`#fale-conosco` + `#contato`) | CTA WhatsApp + formulário |
+| `PageFooter` | Rodapé |
+
+## Formulário e integrações (crítico)
+
+O formulário reaproveita **exatamente** o backend da LP em produção — não é um
+formulário decorativo:
+
+- Envia para a mesma **Supabase Edge Function** (`submit-lead`, projeto
+  `ratdvdatfbbxlrozdioi.supabase.co`) usando a mesma anon key pública já
+  exposta no bundle JS do site em produção (anon keys do Supabase são
+  públicas por design; não concedem acesso a dados, só permitem invocar a
+  function).
+- Mesmo payload: `{ name, email, phone, company, role, sector, source, page_url, submitted_at }`.
+- Mesmos campos e mesmas opções do select (`privada`, `escritorio`, `publica`,
+  `outro`), extraídos do bundle JS original.
+- Mesmo comportamento de sucesso/erro/loading, com proteção contra duplo envio
+  (`status === "submitting"` bloqueia novo submit).
+
+Ver `src/components/ContactForm/ContactForm.tsx` e `src/lib/supabaseClient.ts`.
+
+### Atualizar campos do formulário
+
+Edite `payconLandingContent.form.fields` em `payconLandingContent.ts` — o
+componente é gerado a partir dessa lista, então adicionar/remover um campo não
+exige tocar no JSX do `ContactForm`.
+
+### Validar a integração
+
+Abra o DevTools → Network, preencha o formulário com dados de teste e envie —
+deve aparecer uma chamada `POST` para `.../functions/v1/submit-lead`
+retornando 200. **Não envie dados de teste em excesso**: cada envio cria um
+lead real no CRM da Paycon.
+
+## Analytics (preservado, ver `index.html`)
+
+| Script | ID real capturado | Status |
+|---|---|---|
+| Google Tag Manager | `GTM-TNX4TPXC` | preservado |
+| LinkedIn Insight Tag | via `snap.licdn.com` | preservado |
+| Microsoft Clarity | `uwshe4qqkz` | preservado |
+| Rastreador próprio (Mantora Lab) | `cid=95b4b23b-...` | preservado |
+| Meta Pixel | — | pendência, ver abaixo |
+
+**Pendência real**: o Meta Pixel na LP original é inicializado com um ID
+carregado dinamicamente em runtime (`fbq('init', '${e}')`), não hardcoded no
+bundle — não foi possível extrair o número real do Pixel só inspecionando o JS
+do cliente. Não foi inventado um ID. Para adicionar o Pixel real, insira o
+snippet padrão do Meta com o ID correto em `index.html` (mesmo padrão dos
+outros scripts já presentes).
+
+Cliques nos CTAs disparam `trackCtaClick()` (`src/lib/analytics.ts`), que
+replica o comportamento original: chama
+`window.trck.event("cta_click", {button: placement})` (mesmo rastreador da
+LP) e empurra um evento `paycon_cta_click` no `dataLayer` (GTM).
+
+## Acessibilidade
+
+- Skip link, hierarquia de headings, `<main>`/`<header>`/`<nav>`/`<footer>`
+  semânticos.
+- Labels reais em todos os campos do formulário (não apenas placeholder),
+  erros com `role="alert"` e `aria-invalid`/`aria-describedby`.
+- Carrossel de depoimentos navegável por teclado, com `aria-live` anunciando o
+  depoimento atual.
+- Elementos puramente decorativos (`ParticleStage`, `ExperienceFrame`) usam
+  `aria-hidden="true"`.
+- Nenhum conteúdo comercial vive no canvas: toda a copy, cards, mosaico,
+  parceiros, formulário e CTAs são DOM real, selecionável e rastreável.
+- `prefers-reduced-motion`: `ScrollSmoother` não é inicializado, o preloader é
+  pulado, os canvases desenham um frame estático (sem `requestAnimationFrame`)
+  e as animações de entrada por CSS/GSAP são neutralizadas pelo reset global.
+
+## Performance
+
+- DPR do canvas limitado a 1.5.
+- O palco pausa o loop via `visibilitychange` quando a aba perde foco (por ser
+  fixo e sempre visível, não usa `IntersectionObserver`).
+- Zero alocação por frame: os alvos são escritos em `Float32Array`s prealocados.
+- Um único `requestAnimationFrame` para tudo — partículas, parallax de interface
+  e tilt dos containers, em vez de um loop por componente.
+- Densidade de partículas por tier de dispositivo (`useDevicePerformance.ts`,
+  heurística por `hardwareConcurrency` + `deviceMemory` + `pointer: coarse`).
+- Imagens de parceiros/depoimentos/time com `loading="lazy"`.
+- `ScrollTrigger`/`ScrollSmoother` únicos (uma instância cada, criados em
+  `App.tsx`) — evite criar novas instâncias em componentes filhos.
+
+## Bugs encontrados e corrigidos na validação em navegador
+
+Nenhum destes aparecia no `npm run build` — todos foram encontrados medindo a
+página rodando.
+
+**1. Cena final sequestrando o palco (arbitragem).** As faixas de scroll das
+cenas se sobrepõem de propósito (é o que faz uma transição começar antes de a
+anterior acabar). Sem arbitragem, a última `ScrollTrigger` a disparar no frame
+ganhava — e como a ordem é a de criação, a **cena final ativava aos 60% da
+página**, enquanto o usuário ainda estava no mosaico. Corrigido com arbitragem
+por proximidade: só escreve no palco a cena cujo retângulo está mais próximo do
+centro da viewport (`isForemostScene` em `useStageScene.ts`). Verificado depois:
+sequência monotônica `cards → mosaic → network → dormant → final-hands`.
+
+**2. Mãos ilegíveis.** Rasterizando os buffers de pontos em grade ASCII, as
+duas "mãos" eram manchas sem dedos distinguíveis: dedos de 27px com vãos de 9px
+não sobrevivem à amostragem, e a palma preenchida virava um bloco. Corrigido
+aumentando a resolução da máscara (320×300 → 460×420), afinando os dedos e
+alargando os vãos, dando um polegar de verdade, e — o mais importante —
+desenhando a mão robótica em **contorno** em vez de preenchida, o que a torna
+mecânica e visualmente distinta da orgânica.
+
+**3. Mãos sobrepostas.** Mesmo com silhuetas boas, as duas mãos e o núcleo se
+fundiam num único borrão central: o `offsetX` da hero empurrava a mão direita
+para fora do quadro e comprimia a esquerda contra o núcleo. Corrigido reduzindo
+o `offsetX`, aumentando o `HAND_SPREAD` e contendo o núcleo durante a formação.
+
+**4. Parceiros invisíveis.** 10 de 30 logos ficavam em `opacity < 0.05` com a
+seção já visível, porque a onda de revelação se espalhava por 55% de uma faixa
+de scroll que terminava fora da tela. Para prova comercial isso é inaceitável.
+Corrigido comprimindo a onda e encerrando a faixa com a seção ainda visível.
+
+**5. Partículas demais em viewport estreito.** `useDevicePerformance` só olhava
+`pointer: coarse`, então uma janela de 390px num desktop recebia 2600
+partículas. Passou a considerar a largura da viewport (com resize debounced).
+
+**6. Copy oculta da acessibilidade por `autoAlpha`.** As etapas do Método
+usavam `autoAlpha: 0` como estado inicial da animação de entrada. `autoAlpha`
+aplica `visibility: hidden`, o que remove o texto da **árvore de
+acessibilidade** e do `innerText` até o usuário rolar até a seção — ou seja, a
+etapa "Diagnóstico" era invisível para leitores de tela e crawlers em quem
+nunca chegasse lá. Trocado por `opacity` puro: visualmente idêntico, conteúdo
+acessível desde o carregamento. (Verificação relacionada: o `SplitText` da
+headline está correto — ele põe `aria-label` no `h1` e `aria-hidden` nos spans
+de palavra, preservando a leitura.)
+
+**7. (sessão anterior) Kill global de ScrollTrigger.** O cleanup do `App`
+chamava `ScrollTrigger.getAll().forEach(t => t.kill())`, matando triggers de
+componentes-filho. Corrigido para matar apenas o `ScrollSmoother` que o próprio
+`App` criou.
+
+## Hero: nuvem que segue o cursor
+
+A hero **não usa mais mãos nem dedos**. A forma principal é uma nuvem de
+partículas que acompanha o ponteiro, com núcleo denso e corpo difuso que se
+deforma ao se deslocar — o comportamento da referência em vídeo
+(`Reference/sparcleydesign_pindown.io_1785161207.mp4`).
+
+**Como o vídeo foi lido**: rasterizei frames em ASCII no navegador (o painel não
+compõe frames, então não havia como assistir). Entre t=2s e t=6s a massa
+luminosa migra ~35% da largura mantendo a escala — não é objeto rígido nem mão,
+é uma massa que segue o ponteiro.
+
+**Implementação** (`buildCloud` em `particleShapes.ts`):
+
+- Distribuição radial com viés forte para o centro (`r = u^1.9`), levemente
+  achatada na horizontal — lê como massa, não como círculo.
+- Cada partícula recebe um **fator de atraso** proporcional à distância do
+  centro. O `ParticleStage` usa esse fator na taxa de interpolação
+  (`baseLerp * (0.3 + lag * 1.1)`): as de dentro acompanham rápido, as de fora
+  ficam atrás. **O rastro e a deformação vêm daí** — não há efeito de trail.
+- O centro da nuvem é o ponteiro já amortecido (`pointer.x/y`, damping 0.075),
+  limitado por `FOLLOW_X` (0.62) e `FOLLOW_Y` (0.22). O limite vertical é menor
+  de propósito: com o raio da nuvem, valores maiores fazem a borda superior
+  alcançar o CTA.
+
+Medido: x de −0,545 a +0,521 (≈480px em 1440) e y de −0,18 a +0,191 (≈167px),
+retornando ao repouso quando o cursor volta ao centro. Folga de ~32px entre a
+borda superior da nuvem e o CTA no extremo.
+
+**Fases da hero** (renomeadas): `hero-cloud` → `hero-gather` → `hero-condense`
+→ `hero-core` → `hero-entry`. A nuvem segue o cursor nas duas primeiras, condensa
+no núcleo Paycon na terceira e a câmera atravessa na última.
+
+### Sobre as mãos da referência
+
+As ilustrações de mãos do screenshot `Reference/download.jpeg` são de um site de
+terceiro. **Não foram reutilizadas** — usá-las numa página comercial criaria
+exposição de propriedade intelectual. As tentativas anteriores (mãos completas,
+depois dedos em retículo) foram descartadas a pedido; o conceito atual é a nuvem.
+
+## Ajustes da quarta rodada
+
+**Moldura global removida.** O `ExperienceFrame` (retângulo arredondado fixo em
+volta da viewport) foi apagado, junto do CSS de `--frame-inset` no header. A
+página usa a viewport inteira; bordas sutis continuam apenas em componentes
+(scanner, cards, painel do formulário).
+
+**Hero recomposta na estrutura da referência.** Logo no topo à esquerda,
+navegação compacta numa pill escura ao centro (Home · Soluções · Clientes ·
+Diferenciais, com `aria-current` por `IntersectionObserver`), CTA em pill de alto
+contraste à direita. Headline, apoio e CTA agora **centralizados** na área
+superior; os dois dedos e o núcleo ocupam a área inferior (`offsetY` do palco em
+−0,46). O menu mobile mantém a navegação **completa** — nenhum link foi perdido.
+
+**Labels técnicos removidos da hero.** "NÚCLEO PAYCON / CONEXÃO ATIVA",
+"CONHECIMENTO HUMANO" e "AUTOMAÇÃO · DADOS · IA" saíram; restou apenas a
+indicação discreta de scroll. As duas tags equivalentes no CTA final também
+foram removidas — ficaram órfãs quando aquela cena passou a formar a logo.
+
+**Bug do "Análise de Base Ativa" corrigido.** Causa medida: `buildScanner`
+distribuía TODAS as partículas em 11 linhas horizontais finas; com blending
+aditivo cada linha acumulava ~236 sprites no mesmo strip e estourava em branco
+(58–74 pixels saturados por linha, 312 no total). Correções: (a) a estrutura
+virou uma grade 2D de 26×14 módulos com vãos reais, (b) alpha/size/heat
+contidos e feixe mais estreito, (c) glow do feixe reduzido de `20px 3px` para
+`8px 0`, (d) **contenção por clip** — a cena publica o retângulo da moldura em
+`stageState.clip` e o render desvanece o que cai fora.
+Depois: **2 pixels saturados** (máx. 2 por linha), densidade por linha de 136 →
+41, e partículas 100% dentro da moldura.
+
+**Sobreposição do título P2P corrigida por fluxo, não por z-index.** O intro
+estava em `top: clamp(150px,17vh,230px)` e a pilha em `top: 57%`; em 1366×768 as
+faixas se cruzavam (10px de sobreposição medidos). O `.sticky` virou
+`grid-template-rows: auto minmax(0,1fr)`: o intro tem a própria linha e a pilha
+só existe na de baixo. Resultado: **46px de folga**. Os cards também só começam
+a percorrer depois de 30% do progresso.
+
+**Sobre a PAYCON em duas colunas.** Os sócios ocupam a coluna esquerda (que
+estava vazia) e o texto institucional a direita, no mesmo `<section>`, com filete
+ligando os retratos. Em ≤1000px o institucional vem primeiro e os sócios
+imediatamente abaixo.
+
+**Formação da logo antecipada.** Era `gather 0–0.3 / assemble 0.28–0.85`; agora
+`0.22–0.45 / 0.40–0.68`, com o pulso em 0.82–0.97 e a faixa de scroll de
+`top 92% → bottom 78%`. Medido: aos 64% as 2600 partículas já formam o wordmark
+(PAY 1228 / CON 1372) com a seção inteira ainda na tela.
+
+**Overflow do formulário corrigido.** Causa: `grid-template-columns: 1fr 1fr` —
+itens de grid têm `min-width: auto` e não encolhem abaixo do min-content do
+input, então 3 campos furavam o painel em **40px**. Correção: `minmax(0, 1fr)`,
+`min-width: 0` nos wrappers, `width/max-width/box-sizing` explícitos nos
+controles, select e botão em `grid-column: 1 / -1`, padding do card em
+`clamp(28px, 4vw, 52px)`, e o layout da seção empilha em ≤1100px (a 1024px a
+coluna do form era esmagada para 344px). Campos, labels, validação, endpoint e
+integração **não foram tocados**; só ganharam `:-webkit-autofill` para o autofill
+não quebrar o tema escuro.
+
+**Bug de vazamento do clip (introduzido e corrigido nesta rodada).** Ao publicar
+o clip direto de `AnalysisScene`, ele continuava ativo depois da cena e apagava o
+palco inteiro na hero (canvas vazio). O clip passou a ser gerido por
+`useStageScene`: a cena em foco publica, todas as outras limpam — atômico.
+
+## Ajustes da terceira rodada
+
+**Hero estabilizada.** A rotação 3D do conjunto e o parallax por camada foram
+removidos do `ParticleStage`; os `useParallax` dos labels da hero foram
+retirados; a amplitude de câmera caiu de `zoom 1→1.75 / camZ 0→0.6` para
+`1→1.32 / 0→0.34`. Só resta a luz ambiente e o campo local de partículas.
+
+**Duas mãos → dois dedos.** Ver "Os dois dedos" acima.
+
+**Foco dos Diferenciais antecipado.** Antes os quadradinhos só ficavam nítidos
+quando a seção já havia passado do topo. Medido antes e depois, pela posição do
+topo da seção:
+
+| Topo da seção | Antes | Depois |
+|---|---|---|
+| 810px (abaixo da viewport) | blur 9,0 / op 0,00 | blur 9,0 / op 0,00 |
+| 630px (entrando) | blur 9,0 / op 0,00 | **blur 0,3 / op 0,97** |
+| 450px | blur 9,0 / op 0,00 | **blur 0,0 / op 1,00** |
+| 270px | blur 8,3 / op 0,08 | **blur 0,0 / op 1,00** |
+| −90px (saindo) | blur 0,6 / op 0,93 | blur 2,2 / op 0,65 |
+
+Os quadradinhos foram **preservados** — só a entrada, o escalonamento e a saída
+mudaram.
+
+**Respiro da seção de Soluções.** A intro ficava a 26px do header; agora fica a
+71px (`top: clamp(150px, 17vh, 230px)`), com a pilha de cards a 57% da altura,
+levemente abaixo do centro. `min-height` virou `height: 100vh` porque o elemento
+é pinado e não pode transbordar a viewport.
+
+**O dado "+80%".** Estava flutuando sobre o scanner, sem relação com a copy de
+Insights (que trata de baixa de provisão). O dado **não foi removido**: ele vive
+na seção de Diferenciais, dentro de um módulo de métrica com o seu próprio label
+(“de acuracidade na previsão de pagamentos judiciais”) e ao lado das outras duas
+métricas oficiais. O que saiu foi a duplicata solta.
+
+**Logos dos clientes em cores originais.** O `filter: grayscale(1) brightness()
+opacity()` foi removido — nenhum logo passa por filtro de cor em nenhum estado.
+Como muitos arquivos foram desenhados para fundo claro (logos escuros
+desapareceriam sobre preto), cada logo recebeu um **painel off-white próprio**;
+no hover o painel clareia e o logo ganha nitidez e escala, sem alterar as cores.
+O box da imagem passou a ser reservado (`width: 100%` + `height` fixa +
+`object-fit: contain`) em vez de depender do tamanho intrínseco — evita layout
+shift e o caso em que uma imagem `loading="lazy"` de área zero nunca é baixada.
+
+**Setas dos depoimentos.** Eram 38×38 (abaixo do mínimo de 44px). Agora o botão
+inteiro tem 56×56, e 60×60 acima de 1280px — verificado no navegador. Ganharam
+hover, `:active`, `:focus-visible`, `cursor: pointer` e `aria-label`. Foi
+adicionado um indicador: contador `01 / 13` e uma barra de progresso com
+`role="progressbar"` + `aria-valuenow`.
+
+**Sócios junto de Quem somos.** Continuam no mesmo `<section id="sobre">`, agora
+43px abaixo do texto institucional (era ~3–5rem), ligados por um filete técnico
+vertical, sem mudança de fundo e sem partículas na área.
+
+**Headline do formulário.** Subiu de `clamp(1.3rem, 1.9vw, 1.85rem)` para
+`clamp(2rem, 4.4vw, 4rem)` com `line-height: 0.98`, e a coluna da headline ficou
+maior que a do formulário. Campos, labels, validação, endpoint e mensagens
+**não foram tocados**.
+
+### Sobre medição neste ambiente
+
+Armadilhas encontradas, registradas para quem for validar depois:
+
+- **`window.scrollTo` briga com o ScrollSmoother.** Medições davam resultados
+  alternados/duplicados. O correto é usar a API do smoother
+  (`smoother.scrollTo(y, false)`), exposta em `window.__payconSmoother` em DEV.
+- **FPS não é medível aqui.** O painel do navegador não compõe frames quando
+  não está em foco, então `requestAnimationFrame` é estrangulado (medi 0,6fps —
+  artefato do harness, não do código). Por isso o custo foi medido de forma
+  **síncrona**, cronometrando o trabalho real de desenho por frame.
+- **Com o painel oculto (`document.hidden`), o Chrome para de recalcular estilo
+  da árvore existente.** Isso produz leituras falsas: escrevi
+  `img.style.opacity = '1'` direto no console, forcei layout, e
+  `getComputedStyle` continuou devolvendo `0` — o que nenhuma regra de cascata
+  explica. Um elemento recém-criado, sem estilo em cache, computa corretamente.
+  Perdi um bom tempo perseguindo um "bug" nos logos dos parceiros que era só
+  isso. Antes de investigar sintoma de estilo, **confirme
+  `document.hidden === false`**.
+- O loop do palco pausa quando `document.hidden` é true (correto, poupa
+  bateria). Para medir nesse estado existe `window.__payconStage.debug
+  .renderOnce(n)`, que desenha N frames sem agendar rAF.
+
+Em DEV, `window.__payconStage` expõe `{ stageState, lib, targets, pointer,
+debug }`. Todos os globais de debug são removidos no build de produção
+(`import.meta.env.DEV`).
+
+## Pendências reais
+
+1. **Meta Pixel**: ID não recuperável via inspeção client-side (ver seção
+   Analytics acima) — precisa ser fornecido pela Paycon.
+2. **Logo vetorial**: cores extraídas de um JPEG 150×150px comprimido; se
+   aparecer um arquivo vetorial, reamostrar (ver seção "Cores da marca").
+3. **Fonte oficial**: nenhuma encontrada no projeto; `Inter` foi usada como
+   substituta institucional provisória.
+4. Não há testes automatizados (`npm run test`) configurados neste projeto.
+5. `dist/assets/index-*.js` está com ~599 kB (189 kB gzip) num único chunk —
+   funcional, mas um candidato natural a `dynamic import()` por seção se o
+   tempo de carregamento inicial se tornar um problema real.
+6. **`prefers-reduced-motion` não foi exercitado em runtime.** As ferramentas
+   deste ambiente não emulam a media query, e forçá-la por evento sintético não
+   alcança os listeners dos hooks. O que **foi** verificado: todas as regras
+   `@media (prefers-reduced-motion: reduce)` existem no CSSOM e declaram os
+   fallbacks corretos (pilha de cards → fluxo estático, tiles → `opacity: 1`,
+   células de parceiro → `--reveal: 1`), e os caminhos JS têm saída antecipada
+   por `reducedMotion`. Vale uma passada manual num browser com a preferência
+   ativada antes de publicar.
+7. Safari e Firefox não foram testados (só o Chromium do ambiente). O
+   `backdrop-filter` nos cards e o `preserve-3d` na pilha são os pontos que
+   merecem olhada.
+
+## Testado
+
+Build de produção (`npm run build`), tipos (`tsc -b`), lint (`oxlint` — zero
+avisos), e verificação **medida** no navegador:
+
+| O que | Resultado |
+|---|---|
+| Palco único e persistente | 1 canvas para toda a página |
+| Progressão da narrativa | `hero-idle → hands → converge → core → entry → scanner → cards → mosaic → network → dormant → final-hands` |
+| Reversibilidade | voltando ao topo retorna a `hero-idle p=0.00` |
+| Separação das mãos | humana x ≈ -0,59 / robótica x ≈ +0,56 (~520px em 1440px) |
+| Silhuetas | rasterizadas em ASCII: palma + 4 dedos com vãos + polegar em ambas |
+| Reação ao cursor | 84px de deslocamento do centroide entre extremidades |
+| Custo de desenho | 5,45 ms/frame @2600 partículas (33% do orçamento de 60fps) |
+| Cursor rápido / saindo da janela | valores finitos, damping estável, campo desliga |
+| Scrub rápido por toda a página e volta | 0 alvos não-finitos (sem NaN) |
+| Overflow horizontal | 0px em 390px e 1440px, em 6 posições de scroll |
+| Parceiros | 30 logos, 0 ocultos com a seção em vista |
+| Mobile 390px | 620 partículas, cards em fluxo, CTA visível no primeiro viewport |
+| Copy comercial | 26 trechos-chave conferidos no `innerText`, 0 ausentes |
+| Analytics | `dataLayer` (GTM) e `clarity` presentes em runtime |
+| Link do WhatsApp | `wa.me/5511914070729?text=…` preservado |
+| Console | nenhum erro novo após percorrer a página inteira |
+| Larguras testadas | 1920, 1440, 1366, 1024, 768, 390, 360 — overflow horizontal 0 em todas |
+
+O formulário teve validação exercitada (os 6 erros de campo obrigatório
+aparecem com `role="alert"`), **sem completar um envio real** — cada envio cria
+um lead de verdade no CRM da Paycon.
