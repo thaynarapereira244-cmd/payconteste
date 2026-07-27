@@ -1,0 +1,92 @@
+.section {
+  position: relative;
+  padding-block: var(--section-padding-y);
+}
+
+.grid {
+  width: 100%;
+  max-width: 100rem;
+  margin-inline: auto;
+  padding-inline: clamp(1.5rem, 6vw, 7rem);
+  display: grid;
+  grid-template-columns: minmax(0, 1.15fr) minmax(0, 0.85fr);
+  gap: clamp(2.5rem, 6vw, 6rem);
+  align-items: start;
+}
+
+.copy {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 1.1rem;
+  min-width: 0;
+}
+
+.title {
+  font-size: clamp(1.8rem, 3vw, 2.9rem);
+  font-weight: 520;
+  letter-spacing: -0.03em;
+  line-height: 1.08;
+  max-width: 22ch;
+}
+
+.lead {
+  font-size: var(--fs-body-lg);
+  color: var(--paycon-muted-strong);
+  max-width: 34rem;
+  line-height: 1.6;
+}
+
+.highlight {
+  font-size: 1rem;
+  color: var(--paycon-blue-200);
+  border-left: 2px solid var(--paycon-blue-500);
+  padding-left: 1rem;
+  max-width: 30rem;
+  line-height: 1.5;
+}
+
+.cta {
+  margin-top: 0.4rem;
+}
+
+/* Coluna direita: módulos com as soluções relacionadas */
+.modules {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  min-width: 0;
+  padding-top: 2.25rem;
+}
+
+.module {
+  border: 1px solid var(--paycon-line);
+  border-radius: 16px;
+  background: linear-gradient(160deg, rgba(20, 24, 38, 0.7), rgba(7, 9, 14, 0.55));
+  padding: 1.5rem;
+}
+
+.module dt {
+  font-size: 1.05rem;
+  font-weight: 620;
+  letter-spacing: -0.01em;
+  color: var(--paycon-white);
+  margin-bottom: 0.5rem;
+}
+
+.module dd {
+  font-size: 0.9rem;
+  color: var(--paycon-muted);
+  line-height: 1.6;
+}
+
+@media (max-width: 960px) {
+  .grid {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 2rem;
+  }
+
+  .modules {
+    padding-top: 0;
+  }
+}

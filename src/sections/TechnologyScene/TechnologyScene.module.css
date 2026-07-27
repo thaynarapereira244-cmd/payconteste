@@ -1,0 +1,128 @@
+.section {
+  position: relative;
+  padding-block: var(--section-padding-y);
+}
+
+.grid {
+  max-width: 100rem;
+  margin-inline: auto;
+  padding-inline: clamp(1.5rem, 6vw, 7rem);
+  display: grid;
+  grid-template-columns: minmax(0, 24rem) 1fr;
+  gap: clamp(2rem, 6vw, 6rem);
+  align-items: center;
+}
+
+.copy {
+  display: flex;
+  flex-direction: column;
+  gap: 0.7rem;
+  align-self: start;
+  padding-top: 1rem;
+}
+
+.title {
+  font-size: clamp(1.5rem, 2.2vw, 2.15rem);
+  font-weight: 520;
+  letter-spacing: -0.025em;
+  line-height: 1.14;
+}
+
+.mosaic {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: clamp(0.6rem, 1vw, 1rem);
+  perspective: 1200px;
+  transform: rotateY(var(--tilt-y, 0deg)) rotateX(var(--tilt-x, 0deg));
+  transform-style: preserve-3d;
+}
+
+.tile {
+  position: relative;
+  grid-column: span 2;
+  min-height: 10.5rem;
+  border: 1px solid var(--paycon-line);
+  border-radius: 14px;
+  background: linear-gradient(160deg, rgba(20, 24, 38, 0.72), rgba(7, 9, 14, 0.6));
+  padding: 1.2rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  gap: 0.35rem;
+  will-change: transform, opacity, filter;
+  overflow: hidden;
+}
+
+.tileWide {
+  grid-column: span 3;
+  justify-content: space-between;
+}
+
+.icon {
+  color: var(--paycon-blue-300);
+  flex-shrink: 0;
+}
+
+.tileText {
+  font-size: 0.88rem;
+  color: var(--paycon-muted-strong);
+  line-height: 1.5;
+}
+
+.metricValue {
+  font-family: var(--font-display);
+  font-size: clamp(1.8rem, 2.8vw, 2.5rem);
+  font-weight: 550;
+  letter-spacing: -0.035em;
+  color: var(--paycon-white);
+  line-height: 1;
+  margin-top: auto;
+}
+
+.metricLabel {
+  font-size: 0.72rem;
+  color: var(--paycon-muted);
+  line-height: 1.4;
+}
+
+/* grafismo próprio no lugar de ícone repetido */
+.tileBar {
+  position: absolute;
+  left: 1.2rem;
+  right: 1.2rem;
+  top: 2.6rem;
+  height: 1px;
+  background: linear-gradient(90deg, var(--paycon-blue-500), transparent);
+}
+
+@media (max-width: 960px) {
+  .grid {
+    grid-template-columns: 1fr;
+    gap: 2rem;
+  }
+
+  .mosaic {
+    grid-template-columns: repeat(2, 1fr);
+    perspective: none;
+    transform: none;
+  }
+
+  .tile,
+  .tileWide {
+    grid-column: span 2;
+    min-height: 8.5rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tile {
+    transform: none !important;
+    filter: none !important;
+    opacity: 1 !important;
+  }
+
+  .mosaic {
+    perspective: none;
+    transform: none;
+  }
+}

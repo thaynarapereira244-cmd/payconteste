@@ -1,0 +1,145 @@
+.section {
+  padding-block: var(--section-padding-y);
+}
+
+/* Duas colunas: sócios à esquerda (antes vazia), institucional à direita */
+.inner {
+  max-width: 100rem;
+  margin-inline: auto;
+  padding-inline: clamp(1.5rem, 6vw, 7rem);
+  display: grid;
+  grid-template-columns: minmax(0, 0.82fr) minmax(0, 1.18fr);
+  gap: clamp(2.5rem, 6vw, 6rem);
+  align-items: start;
+}
+
+/* ---------- coluna dos sócios ---------- */
+.team {
+  position: sticky;
+  top: 7.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+  min-width: 0;
+}
+
+.teamHeading {
+  font-size: 0.72rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  font-weight: 650;
+  color: var(--paycon-blue-300);
+}
+
+.teamList {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.teamCard {
+  position: relative;
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 1rem;
+  padding: 1.15rem;
+  border: 1px solid var(--paycon-line);
+  border-radius: 16px;
+  background: rgba(12, 15, 24, 0.72);
+}
+
+/* filete técnico ligando os retratos entre si */
+.teamCard:not(:last-child)::after {
+  content: "";
+  position: absolute;
+  left: 2.55rem;
+  bottom: -0.75rem;
+  width: 1px;
+  height: 0.75rem;
+  background: linear-gradient(180deg, var(--paycon-blue-500), transparent);
+}
+
+.teamPhoto {
+  width: 72px;
+  height: 72px;
+  border-radius: 14px;
+  object-fit: cover;
+  border: 1px solid var(--paycon-line-strong);
+}
+
+.teamInfo {
+  min-width: 0;
+}
+
+.teamName {
+  font-weight: 650;
+  font-size: 0.95rem;
+  color: var(--paycon-white);
+}
+
+.teamRole {
+  font-size: 0.76rem;
+  color: var(--paycon-blue-200);
+  margin-bottom: 0.35rem;
+}
+
+.teamBio {
+  font-size: 0.78rem;
+  color: var(--paycon-muted);
+  line-height: 1.5;
+}
+
+/* ---------- coluna institucional ---------- */
+.narrative {
+  display: flex;
+  flex-direction: column;
+  gap: 1.05rem;
+  min-width: 0;
+  max-width: 46rem;
+}
+
+.title {
+  font-size: clamp(1.7rem, 2.8vw, 2.7rem);
+  font-weight: 520;
+  letter-spacing: -0.03em;
+  line-height: 1.08;
+}
+
+.lead {
+  font-size: var(--fs-body-lg);
+  color: var(--paycon-muted-strong);
+  line-height: 1.55;
+}
+
+.body {
+  font-size: var(--fs-body-md);
+  color: var(--paycon-muted);
+  line-height: 1.6;
+}
+
+.mission {
+  border-left: 2px solid var(--paycon-blue-400);
+  padding-left: 1.25rem;
+  font-size: var(--fs-display-sm);
+  color: var(--paycon-blue-100);
+  line-height: 1.35;
+  margin-block: 0.5rem;
+}
+
+@media (max-width: 1000px) {
+  /* mobile: institucional primeiro, sócios imediatamente abaixo */
+  .inner {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 2.25rem;
+  }
+
+  .narrative {
+    order: 1;
+    max-width: none;
+  }
+
+  .team {
+    order: 2;
+    position: static;
+  }
+}

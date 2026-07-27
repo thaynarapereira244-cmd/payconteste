@@ -22,3 +22,7 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# Material de referência de terceiros (screenshot e vídeo de outro estúdio)
+# Fica só local: não deve ser redistribuído no repositório.
+Reference/

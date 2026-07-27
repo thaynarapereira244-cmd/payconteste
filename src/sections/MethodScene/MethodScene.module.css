@@ -1,0 +1,65 @@
+.section {
+  padding-block: var(--section-padding-y);
+}
+
+/* copy ancorada à esquerda, deixando a metade direita para o palco */
+.inner {
+  max-width: 100rem;
+  margin-inline: auto;
+  padding-inline: clamp(1.5rem, 6vw, 7rem);
+  width: 100%;
+}
+
+.inner > * {
+  max-width: 40rem;
+}
+
+.subtitle {
+  margin-block: 0.75rem 3rem;
+  max-width: 34rem;
+}
+
+.list {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 2.5rem;
+  padding-left: 2.5rem;
+  max-width: 42rem;
+}
+
+.progressLine {
+  position: absolute;
+  left: 0;
+  top: 6px;
+  bottom: 6px;
+  width: 1px;
+  background: var(--paycon-blue-400);
+  transform-origin: top center;
+  box-shadow: 0 0 12px var(--paycon-glow);
+}
+
+.step {
+  position: relative;
+  display: flex;
+  gap: 1.5rem;
+}
+
+.stepNumber {
+  position: absolute;
+  left: -2.5rem;
+  top: -0.15rem;
+  width: 1.6rem;
+  text-align: center;
+  font-size: var(--fs-body-sm);
+  font-weight: 700;
+  color: var(--paycon-blue-300);
+}
+
+.step h3 {
+  margin-bottom: 0.35rem;
+}
+
+.cta {
+  margin-top: 3rem;
+}

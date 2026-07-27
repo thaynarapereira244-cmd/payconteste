@@ -1,0 +1,121 @@
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  width: 100%;
+  min-width: 0;
+}
+
+/*
+  CAUSA DO OVERFLOW (medido: 3 campos ultrapassavam o painel em 40px):
+  `grid-template-columns: 1fr 1fr` — itens de grid têm `min-width: auto`, então
+  não encolhem abaixo do min-content do input (que tem largura intrínseca padrão
+  de ~20 caracteres + padding). Com `minmax(0, 1fr)` + `min-width: 0` nos
+  wrappers + `box-sizing` explícito, as colunas passam a poder encolher.
+*/
+.grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 1.5rem 1.25rem;
+  width: 100%;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  min-width: 0;
+  width: 100%;
+}
+
+.fieldFull {
+  grid-column: 1 / -1;
+}
+
+.field label {
+  font-size: var(--fs-body-sm);
+  font-weight: 600;
+  color: var(--paycon-muted-strong);
+}
+
+.field input,
+.field select {
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
+  height: 3.1rem;
+  padding: 0 1rem;
+  border-radius: 12px;
+  border: 1px solid var(--paycon-line-strong);
+  background: var(--paycon-surface);
+  color: var(--paycon-white);
+}
+
+.field select {
+  appearance: none;
+  /* seta própria, já que removemos a nativa */
+  background-image: linear-gradient(45deg, transparent 50%, var(--paycon-gray-500) 50%),
+    linear-gradient(135deg, var(--paycon-gray-500) 50%, transparent 50%);
+  background-position: calc(100% - 1.15rem) 1.42rem, calc(100% - 0.8rem) 1.42rem;
+  background-size: 6px 6px, 6px 6px;
+  background-repeat: no-repeat;
+  padding-right: 2.5rem;
+}
+
+.field input:focus-visible,
+.field select:focus-visible {
+  outline: 2px solid var(--paycon-blue-300);
+  outline-offset: 2px;
+  border-color: var(--paycon-blue-400);
+}
+
+.field input:disabled,
+.field select:disabled {
+  opacity: 0.6;
+}
+
+/* autofill do Chrome não deve quebrar as cores do tema escuro */
+.field input:-webkit-autofill,
+.field input:-webkit-autofill:hover,
+.field input:-webkit-autofill:focus {
+  -webkit-text-fill-color: var(--paycon-white);
+  -webkit-box-shadow: 0 0 0 1000px var(--paycon-surface) inset;
+  caret-color: var(--paycon-white);
+}
+
+.fieldError {
+  color: #ff9a9a;
+  font-size: var(--fs-body-sm);
+}
+
+.formError {
+  color: #ff9a9a;
+  font-size: var(--fs-body-sm);
+}
+
+/* botão e mensagem de apoio ocupam a largura toda, dentro do painel */
+.submit {
+  width: 100%;
+}
+
+.successState {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  padding: 2rem;
+  border-radius: 16px;
+  border: 1px solid var(--paycon-line);
+  background: var(--paycon-surface);
+}
+
+@media (max-width: 900px) {
+  .grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .field,
+  .fieldFull {
+    grid-column: 1;
+  }
+}
