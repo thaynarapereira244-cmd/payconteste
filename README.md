@@ -657,6 +657,90 @@ vertical, sem mudança de fundo e sem partículas na área.
 maior que a do formulário. Campos, labels, validação, endpoint e mensagens
 **não foram tocados**.
 
+## Ajustes da oitava rodada
+
+Três pedidos: aproximar a hero da referência de partículas, consertar a
+navegação (Home / Soluções / Clientes / Diferenciais) e trocar a formação
+quadrada pelo wordmark PAYCON oficial.
+
+### A "grade quadrada" da hero
+
+Confirmei o sintoma rasterizando o canvas do site publicado: por volta de
+`scrollY ≈ 2013` as partículas se espalhavam numa **matriz regular** por toda a
+viewport. A causa era a fase final da hero reformando em `lib.scanner`, que é
+literalmente uma grade 26×14.
+
+Ela foi substituída por duas fases novas — `hero-wordmark` (as partículas se
+juntam no wordmark) e `hero-release` (as letras se soltam e viram o material da
+cena seguinte, sem quadro vazio no meio).
+
+### O wordmark é AMOSTRADO do arquivo oficial
+
+`loadOfficialWordmark` em `src/lib/particleShapes.ts` lê
+`public/assets/identity/paycon-logo-source.jpg` e converte a tinta em pontos.
+Nada de texto digitado numa fonte qualquer.
+
+Duas correções foram necessárias para ele deixar de sair como ruído:
+
+- **Limiar de luminância 215, não 186.** O cinza do "CON" (`#B0B0B0`) tem
+  luminância ≈176 e ficava perigosamente perto do corte; com 186 a divisão
+  saía **1189 pontos em PAY contra 311 em CON**. Com 215: **754 / 746**.
+- **Reamostragem sem suavização** (`imageSmoothingEnabled = false`). O upscale
+  interpolado criava um halo azulado na borda das letras cinzas, que a regra
+  `b - r > 14` classificava como "PAY".
+
+### As posições verticais são fração da ALTURA da viewport
+
+O palco projeta com `scale = min(largura, altura) / 2`. Num telefone o menor
+lado é a largura, então uma constante em unidades de palco vale muito menos
+pixels — e ao mesmo tempo o texto do CTA quebra em mais linhas e empurra o
+botão para baixo. Resultado medido com constante fixa: o PAYCON final ficava a
+**115px** do botão em 1920×1080 e a **11px** em 360×740.
+
+`HERO_LOGO_VH = 0.58` e `FINAL_LOGO_VH = 0.74` resolvem isso: a mesma
+proporção em qualquer tela, e nos desktops largos os números caem praticamente
+sobre os anteriores.
+
+Quem informa a métrica é o **laço de render**, via `setStageViewport(w, h)`.
+A primeira versão calculava dentro do módulo e atualizava num listener de
+`resize` — e ficava velha quando o evento não chegava: depois de ir de 360×740
+para 1024×768, a logo era desenhada com a métrica antiga e sobravam **6px** até
+a borda inferior. Sem cache, não há o que envelhecer.
+
+### Navegação sincronizada com o scroll animado
+
+O problema: as âncoras eram nativas. O navegador fazia seu próprio salto de
+hash, que **ignora o ScrollSmoother** — a viewport ia para a seção, mas o
+scroll interno que alimenta as ScrollTriggers não acompanhava, então os efeitos
+ficavam num progresso e a página noutro.
+
+`src/lib/navigation.ts` centraliza a correção. Quatro coisas que só apareceram
+medindo:
+
+1. **`trigger.start` é o lugar errado.** Ele marca onde a *animação* da cena
+   começa (`"top 78%"`, com a seção ainda a 78% da viewport), não onde a seção
+   encosta no topo. Usá-lo deixava a seção parando **541–659px** abaixo do
+   destino. O certo é `offsetTop` somado pela cadeia de `offsetParent` — que já
+   inclui os pin-spacers das seções pinadas.
+2. **`scrollTo(elemento, smooth, "top 76px")` não move o scroll** nesta versão
+   do ScrollSmoother (medido: `scrollTop` 0 nas duas variantes). A forma
+   **numérica** funciona.
+3. **Salto instantâneo não percorre as ScrollTriggers intermediárias**, então
+   nenhuma cena escrevia no palco e o efeito ficava na fase antiga (scroll em
+   4287px com o palco ainda em `hero-cloud`). Um `ScrollTrigger.update()` após
+   o salto resolve — é isso que sincroniza animação e destino.
+4. **`document.fonts.ready` pode não resolver.** A rotina de hash estava
+   pendurada nessa promessa e simplesmente nunca executava. Agora ela começa de
+   imediato e **tenta até assentar** (até 6 tentativas, cada uma conferindo se o
+   scroll chegou a menos de 6px do destino), o que também absorve mudanças de
+   medida por imagens que carreguem depois.
+
+O marcador de seção ativa também saiu do IntersectionObserver, que não
+acompanhava o smoother (medido: continuou em `#home` depois de rolar para
+Soluções, Diferenciais e Clientes). Agora vem de ScrollTriggers dedicadas — a
+mesma fonte de verdade das cenas —, então segue tanto o scroll manual quanto os
+cliques.
+
 ### Sobre medição neste ambiente
 
 Armadilhas encontradas, registradas para quem for validar depois:
@@ -679,6 +763,15 @@ Armadilhas encontradas, registradas para quem for validar depois:
 - O loop do palco pausa quando `document.hidden` é true (correto, poupa
   bateria). Para medir nesse estado existe `window.__payconStage.debug
   .renderOnce(n)`, que desenha N frames sem agendar rAF.
+- **Scroll *suave* não é medível aqui**, pelo mesmo motivo: a animação do
+  `smoother.scrollTo(y, true)` depende de rAF, então ela congela no meio do
+  caminho e amostras posteriores leem a posição do destino *anterior*. Para
+  validar o destino use o caminho instantâneo,
+  `window.__payconScrollTo(id, true)` (exposto em DEV) — é a mesma conta, sem
+  animação.
+- **Eventos de `resize` não chegam de forma confiável** ao redimensionar a
+  viewport por ferramenta. Qualquer valor derivado da viewport que dependa
+  desse listener vai ser lido velho; prefira calcular no ponto de uso.
 
 Em DEV, `window.__payconStage` expõe `{ stageState, lib, targets, pointer,
 debug }`. Todos os globais de debug são removidos no build de produção
@@ -732,6 +825,16 @@ avisos), e verificação **medida** no navegador:
 | Link do WhatsApp | `wa.me/5511914070729?text=…` preservado |
 | Console | nenhum erro novo após percorrer a página inteira |
 | Larguras testadas | 1920, 1440, 1366, 1024, 768, 390, 360 — overflow horizontal 0 em todas |
+| Wordmark oficial amostrado | `logoReady` true, proporção 0,158, divisão PAY/CON **754 / 746** |
+| Legibilidade do wordmark | raster ASCII lê P-A-Y em azul e C-O-N em cinza |
+| Hero forma o wordmark | `hero-wordmark` p=0,52 → distância média ao alvo **0,024**; `hero-release` p=0,17 → **0,000** |
+| Hero: centro do wordmark | **57% da altura** da viewport em todas as 7 larguras, centrado no eixo X |
+| PAYCON do CTA final | centrado no X; **66–217px** abaixo do botão e **186–262px** até a borda inferior nas 7 larguras |
+| Timing do PAYCON final | formado em p=0,42, opaco a partir de 0,62, legível até 1,0 |
+| Navegação (4 links) | seção pousa a **76px** (offset do header) com a fase do palco correta: `scanner` / `mosaic` / `network` / `hero-cloud` |
+| Hash direto | `#clientes` pousa em 5271px na 1ª tentativa, fase `network` |
+| ScrollTriggers | 13 no total (9 de cena + 4 do marcador ativo), 1 smoother, `scroll-behavior: auto` |
+| Caminho sem smoother (reduced motion) | `window.scrollTo` move a página (0 → 7971) |
 
 O formulário teve validação exercitada (os 6 erros de campo obrigatório
 aparecem com `role="alert"`), **sem completar um envio real** — cada envio cria

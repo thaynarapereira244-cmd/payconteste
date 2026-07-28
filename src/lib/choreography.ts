@@ -55,13 +55,60 @@ const FOLLOW_X = 0.62;
 const FOLLOW_Y = 0.22;
 
 /**
- * Logo do CTA final. `LOGO_SY` compensa o aspecto da máscara do wordmark
- * (900×240) para não esticar a tipografia, e `LOGO_Y` posiciona a logo abaixo do
- * botão sem encostar nele.
+ * Wordmark oficial. A escala vertical vem da PROPORÇÃO REAL da caixa de tinta
+ * (`lib.logoAspect`), não de um valor fixo — assim a tipografia nunca estica.
  */
-const LOGO_SX = 0.46;
-const LOGO_SY = 0.46 * (240 / 900);
-const LOGO_Y = -0.5;
+const HERO_LOGO_SX = 0.52;
+const FINAL_LOGO_SX = 0.46;
+
+/**
+ * ALTURA DOS WORDMARKS EM FRAÇÃO DA VIEWPORT, não em constante de palco.
+ *
+ * O palco projeta com `scale = min(largura, altura) / 2`. Num telefone o menor
+ * lado é a LARGURA, então um deslocamento fixo em unidades de palco vale muito
+ * menos pixels — enquanto o conteúdo do CTA fica mais alto, porque o texto
+ * quebra em mais linhas. As duas coisas juntas aproximavam o wordmark do botão
+ * (medido em 360×740: apenas 11px de folga, contra 115px em 1920×1080).
+ *
+ * Ancorando na ALTURA da viewport, a posição vertical passa a ser a mesma
+ * proporção em qualquer tela. Nos desktops largos os valores caem praticamente
+ * sobre os anteriores (em 1920×1080: −0,16 e −0,48 contra −0,16 e −0,46).
+ */
+const HERO_LOGO_VH = 0.58;
+const FINAL_LOGO_VH = 0.74;
+
+/**
+ * Altura da viewport expressa em unidades verticais do palco.
+ *
+ * Quem informa isto é o próprio laço de render, que já mede a viewport a cada
+ * quadro. A primeira versão calculava aqui dentro e atualizava num listener de
+ * `resize` — e ficava DESATUALIZADA quando o evento não chegava (medido: depois
+ * de ir de 360×740 para 1024×768 a logo final foi desenhada com a métrica
+ * antiga e sobrou apenas 6px até a borda inferior). Com a métrica vindo do
+ * render não existe cache para envelhecer.
+ */
+let heightInStageUnits = 2;
+
+/** Informa as dimensões da viewport usadas na projeção do quadro atual. */
+export function setStageViewport(width: number, height: number) {
+  if (width > 0 && height > 0) heightInStageUnits = height / (Math.min(width, height) / 2);
+}
+
+/** Centro vertical do wordmark da hero, em unidades de palco. */
+function heroLogoY() {
+  return (0.5 - HERO_LOGO_VH) * heightInStageUnits;
+}
+
+/** Centro vertical do wordmark do CTA final, abaixo do botão. */
+function finalLogoY() {
+  return (0.5 - FINAL_LOGO_VH) * heightInStageUnits;
+}
+
+/** Posição do wordmark para uma partícula, dada escala e centro vertical. */
+function wordmarkPoint(lib: ShapeLibrary, i: number, sx: number, cy: number) {
+  const sy = sx * lib.logoAspect.value;
+  return { x: lib.logo[i * 2] * sx, y: lib.logo[i * 2 + 1] * sy + cy };
+}
 
 export function writeTargets(
   state: StageState,
@@ -172,34 +219,80 @@ export function writeTargets(
       break;
     }
 
-    case "hero-entry": {
-      // Câmera atravessa o núcleo: partículas passam pelas laterais e se
-      // reorganizam já na forma da cena seguinte (scanner).
-      const through = easeInOut(win(p, 0, 0.6));
-      const reform = easeInOut(win(p, 0.45, 1));
+    case "hero-wordmark": {
+      /**
+       * FORMA O WORDMARK PAYCON — substitui a antiga remontagem na grade do
+       * scanner, que aparecia como um retângulo regular de pontos por toda a
+       * viewport (era esse o "quadrado").
+       *
+       * PAY assume o azul institucional e CON o cinza, pela classificação de cor
+       * do próprio arquivo oficial. Enquanto a imagem não carregou
+       * (`logoReady.value === false`), o núcleo permanece — nunca uma grade.
+       */
+      const form = easeInOut(win(p, 0, 0.72));
+      const settle = win(p, 0.62, 1);
+      const ready = lib.logoReady.value;
+      const heroY = heroLogoY();
 
       for (let i = 0; i < count; i++) {
-        const cx = lib.coreFull[i * 2] * 0.72;
-        const cy = lib.coreFull[i * 2 + 1] * 0.72;
-        // expansão radial: os pontos abrem para fora do enquadramento
-        const ang = Math.atan2(cy, cx);
-        const outR = 1.1 + ((i % 11) / 11) * 1.5;
-        const ox = Math.cos(ang) * outR * 1.5;
-        const oy = Math.sin(ang) * outR;
+        const cx0 = lib.coreFull[i * 2] * 0.46;
+        const cy0 = lib.coreFull[i * 2 + 1] * 0.46;
 
-        const sx = lib.scanner[i * 2] * 0.8;
-        const sy = lib.scanner[i * 2 + 1] * 0.8;
+        if (!ready) {
+          buf.x[i] = cx0;
+          buf.y[i] = cy0;
+          buf.z[i] = 0.22;
+          buf.kind[i] = 2;
+          buf.size[i] = 1;
+          buf.alpha[i] = 0.85;
+          buf.heat[i] = 0.5;
+          continue;
+        }
 
-        const px = lerp(cx, ox, through);
-        const py = lerp(cy, oy, through);
+        const w = wordmarkPoint(lib, i, HERO_LOGO_SX, heroY);
+        // escalonamento leve por partícula: as letras se desenham, não surgem juntas
+        const t = clamp01((form - ((i % 9) / 9) * 0.22) / 0.78);
+        buf.x[i] = lerp(cx0, w.x, t);
+        buf.y[i] = lerp(cy0, w.y, t);
+        buf.z[i] = lerp(0.22, 0.16, t);
+        // a cor da marca só entra quando a letra já está legível
+        buf.kind[i] = t > 0.55 ? (lib.logoIsPay[i] === 1 ? 1 : 0) : 2;
+        // ao estabilizar, os pontos encolhem e o ruído cai → borda mais limpa
+        buf.size[i] = lerp(1.05, 0.72, settle) * lerp(1, 1.05, t);
+        buf.alpha[i] = lerp(0.6, 1, t);
+        buf.heat[i] = lerp(0.55, 0.06, t);
+      }
+      break;
+    }
 
-        buf.x[i] = lerp(px, sx, reform);
-        buf.y[i] = lerp(py, sy, reform);
-        buf.z[i] = lerp(lerp(0.24, -0.55, through), 0.3, reform);
-        buf.kind[i] = reform > 0.5 ? (i % 4 === 0 ? 1 : 0) : 2;
-        buf.size[i] = lerp(1.5, 1.0, reform);
-        buf.alpha[i] = lerp(1, 0.75, reform);
-        buf.heat[i] = lerp(0.9, 0.1, reform);
+    case "hero-release": {
+      /**
+       * O wordmark permanece legível no início e só então as letras se soltam,
+       * virando o material da cena seguinte. Sem quadro vazio entre as cenas.
+       */
+      const release = easeInOut(win(p, 0.3, 1));
+      const ready = lib.logoReady.value;
+      // pulso sutil que atravessa a logo enquanto ela ainda está parada
+      const pulse = 0.5 + 0.5 * Math.sin(time * 2.6);
+      const heroY = heroLogoY();
+
+      for (let i = 0; i < count; i++) {
+        const w = ready
+          ? wordmarkPoint(lib, i, HERO_LOGO_SX, heroY)
+          : { x: lib.coreFull[i * 2] * 0.46, y: lib.coreFull[i * 2 + 1] * 0.46 };
+
+        // dispersão suave para fora, escalonada — nada de explosão
+        const ang = Math.atan2(w.y - heroY, w.x);
+        const outR = 1.15 + ((i % 13) / 13) * 0.9;
+        const t = clamp01((release - ((i % 7) / 7) * 0.25) / 0.75);
+        buf.x[i] = lerp(w.x, Math.cos(ang) * outR * 1.35, t);
+        buf.y[i] = lerp(w.y, Math.sin(ang) * outR + heroY, t);
+        buf.z[i] = lerp(0.16, 0.62, t);
+        buf.kind[i] = ready && t < 0.5 ? (lib.logoIsPay[i] === 1 ? 1 : 0) : i % 4 === 0 ? 1 : 0;
+        buf.size[i] = lerp(0.72, 0.85, t);
+        buf.alpha[i] = lerp(1, 0.35, t);
+        // o pulso só existe enquanto a letra está parada; desaparece ao soltar
+        buf.heat[i] = lerp(0.06 + pulse * 0.12, 0.04, t);
       }
       break;
     }
@@ -301,43 +394,51 @@ export function writeTargets(
        * pelo scroll e reversível: ao subir, os módulos voltam à malha.
        */
       /**
-       * TIMING ANTECIPADO. Antes a montagem só terminava a 85% e a logo aparecia
-       * quando a seção já estava saindo. Agora:
-       *   25–45%  primeiros módulos surgem abaixo do botão
-       *   40–68%  PAY (azul) e CON (cinza) tomam forma
-       *   68–82%  logo totalmente legível
-       *   82–100% estável, com um pulso final discreto
+       * TIMING (spec):
+       *   28–42%  módulos surgem abaixo do botão
+       *   40–62%  PAY (azul) e CON (cinza) tomam forma
+       *   62–72%  a logo AFINA e estabiliza (menos ruído, borda mais limpa)
+       *   72–92%  totalmente legível
+       *   92–100% pulso final discreto
+       *
+       * `settle` é o que resolve a aparência "fragmentada": ao estabilizar, os
+       * pontos encolhem e o jitter residual perde peso, então as bordas das
+       * letras ficam definidas em vez de esfareladas.
        */
-      const gather = easeInOut(win(p, 0.22, 0.45));
-      const assemble = easeInOut(win(p, 0.4, 0.68));
-      // pulso percorre a logo da esquerda para a direita já no trecho estável
-      const sweep = win(p, 0.82, 0.97);
+      const gather = easeInOut(win(p, 0.28, 0.44));
+      const assemble = easeInOut(win(p, 0.4, 0.62));
+      const settle = easeInOut(win(p, 0.62, 0.74));
+      const sweep = win(p, 0.92, 1);
+      const ready = lib.logoReady.value;
+      const finalY = finalLogoY();
 
       for (let i = 0; i < count; i++) {
         const nx = lib.network[i * 2];
         const ny = lib.network[i * 2 + 1];
-        const lx = lib.logo[i * 2] * LOGO_SX;
-        const ly = lib.logo[i * 2 + 1] * LOGO_SY + LOGO_Y;
+        const w = ready
+          ? wordmarkPoint(lib, i, FINAL_LOGO_SX, finalY)
+          : { x: lib.coreFull[i * 2] * 0.28, y: lib.coreFull[i * 2 + 1] * 0.28 + finalY };
 
         // etapa 1: os módulos se recolhem numa faixa solta abaixo do botão
         const gx = lerp(nx, nx * 0.55, gather);
-        const gy = lerp(ny, LOGO_Y + ny * 0.16, gather);
+        const gy = lerp(ny, finalY + ny * 0.16, gather);
 
-        buf.x[i] = lerp(gx, lx, assemble);
-        buf.y[i] = lerp(gy, ly, assemble);
-        buf.z[i] = lerp(0.34, 0.18, assemble);
+        buf.x[i] = lerp(gx, w.x, assemble);
+        buf.y[i] = lerp(gy, w.y, assemble);
+        buf.z[i] = lerp(0.34, 0.16, assemble);
 
         // cor final da marca só assume quando a letra já está formada
         const pay = lib.logoIsPay[i] === 1;
-        buf.kind[i] = assemble > 0.45 ? (pay ? 1 : 0) : 2;
+        buf.kind[i] = ready && assemble > 0.45 ? (pay ? 1 : 0) : 2;
 
-        // pulso: realce estreito viajando no eixo x da logo
+        // pulso: realce estreito viajando no eixo x da logo, só no fim
         const norm = (lib.logo[i * 2] + 1) / 2;
-        const hit = sweep > 0 ? Math.max(0, 1 - Math.abs(norm - sweep) / 0.16) : 0;
+        const hit = sweep > 0 ? Math.max(0, 1 - Math.abs(norm - sweep) / 0.14) : 0;
 
-        buf.size[i] = lerp(0.7, 0.95, assemble) + hit * 0.55;
+        // ponto grande enquanto forma → pequeno e nítido ao estabilizar
+        buf.size[i] = lerp(lerp(0.72, 1, assemble), 0.6, settle) + hit * 0.45;
         buf.alpha[i] = lerp(0.16, 1, assemble);
-        buf.heat[i] = 0.06 + hit * 0.8;
+        buf.heat[i] = lerp(0.1, 0.03, settle) + hit * 0.7;
       }
       break;
     }

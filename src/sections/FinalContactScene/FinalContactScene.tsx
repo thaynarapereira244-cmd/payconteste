@@ -31,8 +31,8 @@ export function FinalContactScene() {
         glow: [0.12, 0.45],
       },
     ],
-    start: "top 92%",
-    end: "bottom 78%",
+    start: "top 95%",
+    end: "bottom 62%",
     scrub: 1.1,
   });
 

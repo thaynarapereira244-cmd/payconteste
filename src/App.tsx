@@ -14,6 +14,7 @@ import { AboutScene } from "./sections/AboutScene/AboutScene";
 import { FinalContactScene } from "./sections/FinalContactScene/FinalContactScene";
 import { useReducedMotion } from "./hooks/useReducedMotion";
 import { ensureGsapRegistered, ScrollSmoother, ScrollTrigger } from "./lib/gsap";
+import { scrollToInitialHash } from "./lib/navigation";
 
 function App() {
   const reducedMotion = useReducedMotion();
@@ -37,7 +38,11 @@ function App() {
 
     // as cenas registram seus próprios triggers; um refresh após o mount
     // garante medidas corretas com fontes/imagens já aplicadas
-    const id = window.setTimeout(() => ScrollTrigger.refresh(), 60);
+    const id = window.setTimeout(() => {
+      ScrollTrigger.refresh();
+      // só depois das medidas é que faz sentido honrar um #hash da URL
+      scrollToInitialHash();
+    }, 80);
 
     return () => {
       window.clearTimeout(id);

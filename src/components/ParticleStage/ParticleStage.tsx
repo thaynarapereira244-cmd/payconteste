@@ -1,6 +1,6 @@
 import { useEffect, useRef } from "react";
 import { getShapeLibrary } from "../../lib/particleShapes";
-import { createTargetBuffers, writeTargets } from "../../lib/choreography";
+import { createTargetBuffers, setStageViewport, writeTargets } from "../../lib/choreography";
 import {
   attachPointerListeners,
   pointer,
@@ -167,6 +167,9 @@ export function ParticleStage() {
       if (!reducedMotion) stepParallax(strength);
       const aspect = w / Math.max(1, h);
 
+      // a coreografia posiciona os wordmarks em fração da ALTURA da viewport,
+      // então precisa das dimensões deste quadro antes de escrever os alvos
+      setStageViewport(w, h);
       writeTargets(stageState, lib, targets, count, time);
 
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0);

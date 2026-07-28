@@ -4,21 +4,24 @@ type PayconLogoProps = {
 };
 
 /**
- * Wordmark recriado em SVG a partir das cores extraídas do arquivo de logo
- * oficial (ver tokens.css). "PAY" em azul institucional, "CON" em cinza.
+ * Wordmark em SVG com as cores extraídas do arquivo oficial (ver tokens.css).
+ * "PAY" em azul institucional, "CON" em cinza.
+ *
+ * O texto começa em x=3 (não em 0) e o viewBox tem folga à direita: encostado
+ * na borda, o "P" podia perder um fio de antialiasing na renderização.
  */
 export function PayconLogo({ className, height = 22 }: PayconLogoProps) {
   return (
     <svg
-      viewBox="0 0 132 28"
+      viewBox="0 0 140 28"
       height={height}
-      width={(132 / 28) * height}
+      width={(140 / 28) * height}
       className={className}
       role="img"
       aria-label="Paycon"
     >
       <text
-        x="0"
+        x="3"
         y="21"
         fontFamily="Inter, Helvetica Neue, Arial, sans-serif"
         fontWeight="700"

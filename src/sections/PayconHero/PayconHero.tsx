@@ -10,41 +10,41 @@ import styles from "./PayconHero.module.css";
 /**
  * Coreografia da hero.
  *
- * A forma principal é uma NUVEM DE PARTÍCULAS QUE SEGUE O CURSOR (referência: o
- * vídeo em `Reference/`), com núcleo denso e corpo difuso que se deforma ao se
- * deslocar. As mãos/dedos foram removidos.
+ * Nuvem orgânica que segue o cursor (referência: o vídeo em `Reference/`) →
+ * recolhe → condensa no núcleo → FORMA O WORDMARK PAYCON → libera para a cena
+ * seguinte. A antiga remontagem numa grade retangular foi removida.
  *
- * A copy fica centralizada na área superior e o palco recebe `offsetY` negativo,
- * deixando a nuvem na metade inferior sem cobrir o texto.
+ * O wordmark ocupa ~20% da timeline formando e ~12% legível antes de soltar, e
+ * `offsetY` sobe a 0 nessa etapa para que ele fique no centro visual.
  *
  * Tudo é função do progresso do scroll → a sequência reverte corretamente.
  */
 const SEGMENTS: StageSegment[] = [
-  // 0–20%: nuvem seguindo o cursor livremente; copy e CTA visíveis
-  { phase: "hero-cloud", weight: 1, interaction: [1, 1], offsetY: [-0.5, -0.5], glow: [0.1, 0.16] },
-  // 20–45%: a nuvem se recolhe, ainda acompanhando o cursor
-  { phase: "hero-gather", weight: 1.3, interaction: [1, 0.5], offsetY: [-0.5, -0.46], glow: [0.16, 0.26] },
-  // 45–68%: condensa no núcleo Paycon, com linhas de dados
-  { phase: "hero-condense", weight: 1.2, interaction: [0.5, 0.3], offsetY: [-0.46, -0.36], glow: [0.26, 0.6] },
-  // 68–84%: núcleo formado, pulso contido
+  // 0–22%: campo orgânico seguindo o cursor; copy e CTA totalmente visíveis
+  { phase: "hero-cloud", weight: 1.1, interaction: [1, 1], offsetY: [-0.5, -0.5], glow: [0.1, 0.16] },
+  // 22–44%: a nuvem se recolhe, dois lados começam a se distinguir
+  { phase: "hero-gather", weight: 1.1, interaction: [1, 0.55], offsetY: [-0.5, -0.42], glow: [0.16, 0.26] },
+  // 44–62%: conexão no centro, pulso contido
+  { phase: "hero-condense", weight: 0.9, interaction: [0.55, 0.3], offsetY: [-0.42, -0.24], glow: [0.26, 0.6] },
+  // 62–68%: núcleo pronto, prestes a virar letra
+  { phase: "hero-core", weight: 0.3, interaction: [0.3, 0.2], offsetY: [-0.24, -0.1], glow: [0.6, 0.8] },
+  // 68–88%: FORMA O WORDMARK PAYCON, centralizado
   {
-    phase: "hero-core",
-    weight: 0.8,
-    interaction: [0.3, 0.25],
-    offsetY: [-0.38, -0.26],
-    zoom: [1, 1.06],
-    glow: [0.6, 0.9],
+    phase: "hero-wordmark",
+    weight: 1,
+    interaction: [0.2, 0.12],
+    offsetY: [-0.1, 0],
+    glow: [0.8, 0.3],
   },
-  // 84–100%: as partículas viram a linguagem da cena seguinte
+  // 88–100%: permanece legível e só então libera para a cena seguinte
   {
-    phase: "hero-entry",
-    weight: 0.9,
-    interaction: [0.15, 0.55],
-    offsetY: [-0.26, 0],
-    zoom: [1.06, 1.24],
-    camZ: [0, 0.26],
-    opacity: [1, 0.85],
-    glow: [0.9, 0.25],
+    phase: "hero-release",
+    weight: 0.6,
+    interaction: [0.12, 0.5],
+    offsetY: [0, 0],
+    zoom: [1, 1.12],
+    opacity: [1, 0.9],
+    glow: [0.3, 0.2],
   },
 ];
 
@@ -60,7 +60,8 @@ export function PayconHero() {
   const onProgress = useCallback((p: number) => {
     const copy = copyRef.current;
     if (!copy) return;
-    const out = Math.min(1, Math.max(0, (p - 0.68) / 0.22));
+    // legível durante os primeiros ~44%, depois sai por máscara
+    const out = Math.min(1, Math.max(0, (p - 0.44) / 0.2));
     // mantém o translateX(-50%) da centralização; só acrescenta o deslocamento
     copy.style.transform = `translate(-50%, ${(-out * 5).toFixed(2)}vh)`;
     copy.style.opacity = String(1 - out);

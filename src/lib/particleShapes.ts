@@ -247,59 +247,121 @@ export function buildNetwork(count: number, seed = 808): PointBuffer {
 }
 
 /**
- * WORDMARK PAYCON para a formação da logo no CTA final.
+ * WORDMARK PAYCON amostrado do ARQUIVO OFICIAL da logo.
  *
- * O wordmark é reproduzido como TEXTO na fonte da marca (mesma abordagem já
- * usada no componente `PayconLogo`), e não amostrado do arquivo de imagem: o
- * único asset disponível no projeto é um JPEG de 150×150 com fundo branco e
- * forte compressão, que amostrado geraria alvos serrilhados e sujos. Ver README.
+ * Antes o wordmark era digitado como texto em Inter e amostrado — o que
+ * aproximava a tipografia em vez de usar a real. Agora a fonte da verdade é
+ * `public/assets/identity/paycon-logo-source.jpg`, o próprio arquivo da marca.
  *
- * Retorna também `isPay`, marcando quais pontos pertencem a "PAY" (azul) e
- * quais a "CON" (cinza), medido pela largura real do texto.
+ * Detalhes que importam:
+ *  - O arquivo tem FUNDO BRANCO (não é PNG com alpha), então o critério de
+ *    "tinta" é luminância baixa, não canal alpha.
+ *  - PAY/CON são separados pela COR REAL dos pixels (azul tem b−r alto; cinza é
+ *    neutro), não por um palpite de largura. É a atribuição exata da marca.
+ *  - A imagem é redesenhada ampliada com suavização antes da amostragem: os
+ *    ~735 pixels de tinta do original a 150×150 dariam alvos muito grosseiros.
+ *  - Só a caixa delimitadora da tinta é normalizada, preservando proporção e
+ *    espaçamento entre letras — nunca a moldura transparente/branca em volta.
+ *
+ * O carregamento é assíncrono; os buffers são preenchidos EM PLACE quando a
+ * imagem chega, e `ready.value` passa a true. A coreografia usa o núcleo como
+ * estado de espera até lá.
  */
-export function buildLogoWordmark(count: number, seed = 909) {
-  const W = 900;
-  const H = 240;
-  const canvas = document.createElement("canvas");
-  canvas.width = W;
-  canvas.height = H;
-  const ctx = canvas.getContext("2d", { willReadFrequently: true });
-  const points = new Float32Array(count * 2);
-  const isPay = new Uint8Array(count);
-  if (!ctx) return { points, isPay };
+export type WordmarkTarget = {
+  points: Float32Array;
+  isPay: Uint8Array;
+  /** altura / largura da caixa de tinta, para não esticar a tipografia */
+  aspect: { value: number };
+  ready: { value: boolean };
+};
 
-  const font = '700 168px Inter, "Helvetica Neue", Arial, sans-serif';
-  ctx.font = font;
-  ctx.textBaseline = "middle";
-  ctx.fillStyle = "#fff";
+const LOGO_SRC = `${import.meta.env.BASE_URL ?? "/"}assets/identity/paycon-logo-source.jpg`;
 
-  const payWidth = ctx.measureText("PAY").width;
-  const totalWidth = ctx.measureText("PAYCON").width;
-  const startX = (W - totalWidth) / 2;
-  // fronteira entre PAY e CON, em coordenada de canvas
-  const boundaryX = startX + payWidth;
-  ctx.fillText("PAYCON", startX, H / 2);
+export function loadOfficialWordmark(count: number, seed = 909): WordmarkTarget {
+  const target: WordmarkTarget = {
+    points: new Float32Array(count * 2),
+    isPay: new Uint8Array(count),
+    aspect: { value: 0.26 },
+    ready: { value: false },
+  };
+  if (typeof document === "undefined") return target;
 
-  const data = ctx.getImageData(0, 0, W, H).data;
-  const candidates: Array<{ x: number; y: number; pay: boolean }> = [];
-  for (let y = 0; y < H; y += 2) {
-    for (let x = 0; x < W; x += 2) {
-      if (data[(y * W + x) * 4 + 3] > 130) {
-        // y negado: ver a nota de ORIENTAÇÃO em `sampleHalftone`
-        candidates.push({ x: (x / W) * 2 - 1, y: -((y / H) * 2 - 1), pay: x < boundaryX });
+  const img = new Image();
+  img.crossOrigin = "anonymous";
+  img.onload = () => {
+    try {
+      /**
+       * Amplia SEM suavização (nearest-neighbor).
+       * Com suavização, o halo entre letra e fundo branco entrava como tinta e
+       * engordava as formas; e como o cinza da marca (#B0B0B0) tem luminância
+       * ~176, muito perto do fundo, a combinação halo+limiar apertado apagava
+       * quase todo o "CON". Pixels crus mantêm as letras exatas — e a
+       * granulação não aparece, porque as partículas já quantizam a forma.
+       */
+      const scale = 6;
+      const W = Math.round(img.naturalWidth * scale);
+      const H = Math.round(img.naturalHeight * scale);
+      const canvas = document.createElement("canvas");
+      canvas.width = W;
+      canvas.height = H;
+      const ctx = canvas.getContext("2d", { willReadFrequently: true });
+      if (!ctx) return;
+      ctx.imageSmoothingEnabled = false;
+      ctx.drawImage(img, 0, 0, W, H);
+      const data = ctx.getImageData(0, 0, W, H).data;
+
+      // 1) caixa da tinta + coleta dos pixels
+      type Ink = { x: number; y: number; pay: boolean };
+      const ink: Ink[] = [];
+      let minX = W;
+      let maxX = -1;
+      let minY = H;
+      let maxY = -1;
+      const step = Math.max(1, Math.round(scale / 2));
+      for (let y = 0; y < H; y += step) {
+        for (let x = 0; x < W; x += step) {
+          const i = (y * W + x) * 4;
+          const r = data[i];
+          const g = data[i + 1];
+          const b = data[i + 2];
+          const lum = r * 0.299 + g * 0.587 + b * 0.114;
+          // 215 e não 186: o cinza "CON" fica em ~176 de luminância, quase no
+          // fundo. Medido no arquivo: x 28–70 sai 100% azul (PAY) e x 74–119
+          // 100% cinza (CON), com separação de cor perfeita.
+          if (lum > 215) continue; // fundo branco
+          // azul da marca: componente azul bem acima do vermelho
+          ink.push({ x, y, pay: b - r > 14 });
+          if (x < minX) minX = x;
+          if (x > maxX) maxX = x;
+          if (y < minY) minY = y;
+          if (y > maxY) maxY = y;
+        }
       }
-    }
-  }
-  if (candidates.length === 0) return { points, isPay };
+      if (ink.length === 0 || maxX <= minX || maxY <= minY) return;
 
-  const rand = mulberry(seed);
-  for (let i = 0; i < count; i++) {
-    const c = candidates[Math.floor(rand() * candidates.length)];
-    points[i * 2] = c.x + (rand() - 0.5) * 0.006;
-    points[i * 2 + 1] = c.y + (rand() - 0.5) * 0.012;
-    isPay[i] = c.pay ? 1 : 0;
-  }
-  return { points, isPay };
+      // 2) normaliza pela caixa de tinta, preservando proporção
+      const bw = maxX - minX;
+      const bh = maxY - minY;
+      target.aspect.value = bh / bw;
+      const rand = mulberry(seed);
+      for (let i = 0; i < count; i++) {
+        const pt = ink[Math.floor(rand() * ink.length)];
+        const nx = ((pt.x - minX) / bw) * 2 - 1;
+        const ny = ((pt.y - minY) / bh) * 2 - 1;
+        // jitter mínimo: o suficiente para os pontos não se empilharem, sem
+        // desmanchar a borda das letras
+        target.points[i * 2] = nx + (rand() - 0.5) * 0.006;
+        // y negado: ver a nota de ORIENTAÇÃO em `sampleHalftone`
+        target.points[i * 2 + 1] = -(ny + (rand() - 0.5) * 0.018);
+        target.isPay[i] = pt.pay ? 1 : 0;
+      }
+      target.ready.value = true;
+    } catch {
+      // se o canvas for contaminado ou a imagem falhar, o palco segue no núcleo
+    }
+  };
+  img.src = LOGO_SRC;
+  return target;
 }
 
 export type ShapeLibrary = {
@@ -318,6 +380,10 @@ export type ShapeLibrary = {
   network: PointBuffer;
   logo: PointBuffer;
   logoIsPay: Uint8Array;
+  /** proporção (altura/largura) da caixa de tinta do wordmark oficial */
+  logoAspect: { value: number };
+  /** false até a imagem oficial ser carregada e amostrada */
+  logoReady: { value: boolean };
   roles: RoleRanges;
 };
 
@@ -329,7 +395,7 @@ export function getShapeLibrary(count: number): ShapeLibrary {
   if (cached) return cached;
 
   const roles = computeRoles(count);
-  const wordmark = buildLogoWordmark(count);
+  const wordmark = loadOfficialWordmark(count);
   const cloud = buildCloud(count);
   const library: ShapeLibrary = {
     cloud: cloud.points,
@@ -344,6 +410,8 @@ export function getShapeLibrary(count: number): ShapeLibrary {
     network: buildNetwork(count),
     logo: wordmark.points,
     logoIsPay: wordmark.isPay,
+    logoAspect: wordmark.aspect,
+    logoReady: wordmark.ready,
     roles,
   };
   libraryCache.set(count, library);
