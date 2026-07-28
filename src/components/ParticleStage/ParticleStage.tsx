@@ -35,11 +35,17 @@ const FOCAL = 2.1;
  * partículas dentro de `INFLUENCE_RADIUS`, com falloff quadrático, e o restante
  * do quadro fica imóvel.
  */
-const INFLUENCE_RADIUS = 210;
+const INFLUENCE_RADIUS = 280;
 /** Deslocamento máximo de uma partícula no centro do campo, em px. */
-const MAX_PUSH = 42;
+const MAX_PUSH = 50;
+/**
+ * Peso da CORRENTE tangencial em relação ao empurrão radial. É ela que faz as
+ * partículas fluírem AO REDOR do cursor (girando no sentido do movimento) em vez
+ * de só serem empurradas para longe — é o que dá a sensação de fluido.
+ */
+const SWIRL_RATIO = 0.55;
 /** Velocidade de retorno à posição de origem quando o cursor se afasta. */
-const RELEASE_RATE = 0.035;
+const RELEASE_RATE = 0.03;
 
 type SpriteSet = { gray: HTMLCanvasElement; blue: HTMLCanvasElement; core: HTMLCanvasElement };
 
@@ -241,19 +247,36 @@ export function ParticleStage() {
           const d2 = dx * dx + dy * dy;
           if (d2 < influenceR2) {
             const d = Math.sqrt(d2) || 0.001;
-            f = (1 - d / influenceR) ** 2 * strength * (0.8 + pointer.speed * 0.4);
+            // falloff suave (não ao quadrado): a corrente alcança mais partículas
+            // e a deformação lê como uma onda que percorre a nuvem, não um furo
+            const fall = 1 - d / influenceR;
+            f = fall * fall * strength * (0.7 + pointer.speed * 0.7);
+            const nx = dx / d;
+            const ny = dy / d;
             const kind = targets.kind[i];
-            // dualidade: o lado humano recua, o tecnológico é atraído
+            // dualidade preservada: o lado humano recua, o tecnológico é atraído
             const dir = kind === 1 ? -1 : 1;
-            const push = MAX_PUSH * f * dir;
-            // pequena ondulação perpendicular, para o campo não parecer radial puro
-            const wobble = Math.sin(d * 0.05 - time * 2.4) * 5 * f;
-            offX[i] += ((dx / d) * push - wobble * (dy / d) - offX[i]) * 0.12;
-            offY[i] += ((dy / d) * push + wobble * (dx / d) - offY[i]) * 0.12;
+
+            // 1) componente RADIAL — empurra/atrai ao longo da linha do cursor
+            const radial = MAX_PUSH * f * dir;
+            // 2) componente TANGENCIAL — a corrente que faz fluir ao redor.
+            //    O sentido do giro acompanha o movimento do cursor (produto
+            //    vetorial velocidade × raio), então mover o mouse "arrasta" a
+            //    nuvem numa curva em vez de só afastá-la.
+            const spin = pointer.vx * ny - pointer.vy * nx >= 0 ? 1 : -1;
+            const swirl = MAX_PUSH * SWIRL_RATIO * f * spin;
+            const tX = radial * nx - swirl * ny;
+            const tY = radial * ny + swirl * nx;
+
+            // arrasto por partícula: o miolo acompanha, a borda fica para trás →
+            // rastro/deformação orgânica em vez de bloco rígido
+            const follow = 0.14 - lib.cloudLag[i] * 0.05;
+            offX[i] += (tX - offX[i]) * follow;
+            offY[i] += (tY - offY[i]) * follow;
           }
         }
         if (f === 0) {
-          // retorno lento à origem
+          // retorno lento à origem — o assentamento suave é parte do "fluido"
           offX[i] += (0 - offX[i]) * RELEASE_RATE;
           offY[i] += (0 - offY[i]) * RELEASE_RATE;
         }

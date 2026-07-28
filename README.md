@@ -217,15 +217,26 @@ balançando junto com o mouse. Ambos foram removidos.
 O que existe hoje:
 
 1. **Fundo**: apenas uma luz ambiente radial que acompanha o cursor (≤14px).
-2. **Partículas**: campo de influência **local**, raio de 210px, com força
-   caindo em `(1 - d/r)²`. Dentro dele a partícula é deslocada (até 42px),
-   cresce, clareia e ganha uma pequena ondulação perpendicular. Cada partícula
-   guarda seu próprio deslocamento e **relaxa devagar** de volta à origem
-   (`RELEASE_RATE`), então as bolinhas voltam sozinhas em vez de saltar.
-   O lado humano é repelido e o tecnológico atraído — dualidade que reforça o
-   conceito da marca.
+2. **Partículas**: campo de influência **local**, raio de 280px, com força
+   caindo em `(1 - d/r)²`. Dentro dele cada partícula recebe **dois**
+   componentes: um **radial** (até 50px — o lado humano é repelido e o
+   tecnológico atraído, dualidade da marca) e uma **corrente tangencial**
+   (`SWIRL_RATIO`) que a faz fluir **ao redor** do cursor. O sentido do giro
+   acompanha a direção do movimento do mouse (produto vetorial velocidade ×
+   raio), então passar o cursor "arrasta" a nuvem numa curva em vez de só
+   afastá-la — é o que dá a sensação de fluido. A força também cresce com a
+   velocidade do cursor (`0,7 + speed·0,7`). O acompanhamento é **por
+   partícula** (`0.14 − cloudLag·0.05`): o miolo segue, a borda fica para trás,
+   criando rastro; e tudo **relaxa devagar** de volta à origem (`RELEASE_RATE`)
+   em vez de saltar.
 3. **Nada mais**: headline, CTA, labels, moldura e câmera não respondem ao
-   cursor. A hero tem base fixa.
+   cursor. A hero tem base fixa — a corrente é puramente local, não gira nem
+   balança o quadro.
+
+Medido no render real (fase `hero-cloud`): a nuvem em repouso espalha ~70px
+(183×273); com o cursor passando por ela em movimento, sobe para ~83px
+(246×309), crescendo mais no eixo do movimento — a corrente arrastando as
+partículas na direção do mouse.
 
 Verificado no navegador: com o cursor na extremidade **esquerda** (longe da
 massa de partículas) o centroide fica **inalterado** (0,5763 vs 0,5762 no
@@ -243,10 +254,11 @@ Assim o cursor nunca tira os objetos da trajetória durante uma transição.
 
 Sem tocar em lógica, três níveis:
 
-- **Cursor mais discreto**: reduza `INFLUENCE_RADIUS` (raio, padrão 210px) e
-  `MAX_PUSH` (deslocamento máximo, padrão 42px) no topo de `ParticleStage.tsx`.
-  `RELEASE_RATE` controla a velocidade de retorno. Para desligar o campo,
-  zere `MAX_PUSH`.
+- **Cursor mais discreto**: reduza `INFLUENCE_RADIUS` (raio, padrão 280px),
+  `MAX_PUSH` (deslocamento radial, padrão 50px) e `SWIRL_RATIO` (peso da
+  corrente tangencial, padrão 0,55) no topo de `ParticleStage.tsx`.
+  `RELEASE_RATE` controla a velocidade de retorno. Para um cursor só radial,
+  zere `SWIRL_RATIO`; para desligar o campo, zere `MAX_PUSH`.
 - **Por cena**: baixe os valores de `interaction` nos `segments` da seção.
 - **Global**: em `stageState.ts`, fixe `interactionTarget` em um valor baixo.
 
