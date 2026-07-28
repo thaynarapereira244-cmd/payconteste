@@ -1,6 +1,6 @@
 import { useState, type FormEvent } from "react";
 import { payconLandingContent } from "../../content/payconLandingContent";
-import { supabase } from "../../lib/supabaseClient";
+import { getSupabase } from "../../lib/supabaseClient";
 import { trackCtaClick } from "../../lib/analytics";
 import styles from "./ContactForm.module.css";
 
@@ -72,6 +72,7 @@ export function ContactForm() {
         submitted_at: new Date().toISOString(),
       };
 
+      const supabase = await getSupabase();
       const { error } = await supabase.functions.invoke(form.integration.functionName, {
         body: payload,
       });

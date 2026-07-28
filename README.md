@@ -440,10 +440,57 @@ LP) e empurra um evento `paycon_cta_click` no `dataLayer` (GTM).
 - Um único `requestAnimationFrame` para tudo — partículas, parallax de interface
   e tilt dos containers, em vez de um loop por componente.
 - Densidade de partículas por tier de dispositivo (`useDevicePerformance.ts`,
-  heurística por `hardwareConcurrency` + `deviceMemory` + `pointer: coarse`).
-- Imagens de parceiros/depoimentos/time com `loading="lazy"`.
+  heurística por `hardwareConcurrency` + `deviceMemory` + `pointer: coarse`,
+  com rede de segurança por FPS medido que só rebaixa o tier).
+- Imagens em WebP, com `loading="lazy"` + `decoding="async"` + dimensões.
+- `@supabase/supabase-js` fora do bundle inicial (import dinâmico no submit).
 - `ScrollTrigger`/`ScrollSmoother` únicos (uma instância cada, criados em
   `App.tsx`) — evite criar novas instâncias em componentes filhos.
+
+## Otimização de performance (rodada 9)
+
+Passe focado em deixar a página **mais leve e fluida sem redesenho** — mesma
+experiência visual, menor custo. A auditoria antes de qualquer mudança revelou
+que o gargalo NÃO estava no motor de partículas (já enxuto: 1 canvas, 1 rAF,
+pausa em `visibilitychange`, DPR 1.5, tiers), e sim em **imagens** e no
+**bundle inicial**.
+
+Importante: **não há Three.js, WebGL nem shaders** neste projeto — as partículas
+são Canvas2D. Por isso a recomendação genérica de "10–18k partículas" foi
+recusada: em Canvas2D cada partícula é um `drawImage` na CPU (medido: 2600 ≈
+5,45 ms/frame ≈ 2,1 µs/partícula), então 18k dariam ~38 ms/frame (26fps) e
+quebrariam justamente a fluidez que se quer. Os tiers (2600/1500/620) foram
+mantidos.
+
+O que mudou:
+
+- **Imagens PNG/JPG → WebP** (depoimentos, time e parceiros, via ffmpeg/libwebp).
+  Foto salva como PNG era o maior desperdício — um depoimento caiu de 282 KB para
+  22 KB. Total de imagens: **~3,5 MB → 911 KB (−73%)**. Só o formato mudou; a
+  identidade `paycon-logo-source.jpg` (fonte da amostragem de partículas) foi
+  preservada de propósito.
+- **Supabase sob demanda.** `@supabase/supabase-js` saiu do bundle inicial: o
+  client é criado por `import()` dinâmico só no submit do formulário
+  (`getSupabase()` em `supabaseClient.ts`). Bundle inicial JS: **188 KB → 132 KB
+  gzip (−28%)**; os ~52 KB gzip do SDK viram um chunk separado, carregado apenas
+  quando o usuário envia o formulário (medido: nenhum request do SDK no load).
+- **CLS/decoding.** `decoding="async"` + `width`/`height` explícitos nas imagens
+  de parceiros e depoimentos, reservando o espaço antes do decode.
+- **Rede de segurança por FPS medido.** `useDevicePerformance` agora, além da
+  heurística (cores/memória/ponteiro/largura), mede a taxa real de quadros ~600ms
+  após o load e **rebaixa o tier uma vez** se a mediana ficar abaixo de ~42fps.
+  Só desce, nunca sobe — o desktop aprovado nunca é empurrado além do que a
+  heurística concedeu; protege um aparelho fraco que enganou a heurística.
+
+Por que "pausar animações fora da viewport" (pedido comum) não se aplica: o palco
+é um canvas fixo **sempre visível** atrás de todas as seções — não existe estado
+"offscreen" dele. O equivalente real é pausar quando a aba perde foco, o que já
+existe via `visibilitychange`; e o trabalho por cena é arbitrado por proximidade
+de viewport (`isForemostScene`).
+
+Não feito de propósito: `React.lazy` por seção. O maior chunk (GSAP) é necessário
+já no load da hero, então o ganho seria marginal, enquanto o code-split
+desestabilizaria a medição do canvas persistente e a sincronia de scroll.
 
 ## Bugs encontrados e corrigidos na validação em navegador
 

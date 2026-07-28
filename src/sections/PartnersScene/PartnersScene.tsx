@@ -131,7 +131,15 @@ export function PartnersScene() {
                 className={styles.cell}
               >
                 <span className={styles.node} data-node aria-hidden="true" />
-                <img src={partner.logo} alt={partner.name} loading="lazy" className={styles.logo} />
+                <img
+                  src={partner.logo}
+                  alt={partner.name}
+                  loading="lazy"
+                  decoding="async"
+                  width="132"
+                  height="64"
+                  className={styles.logo}
+                />
               </li>
             ))}
           </ul>

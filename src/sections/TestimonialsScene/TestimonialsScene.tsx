@@ -84,7 +84,15 @@ export function TestimonialsScene() {
           <Quote size={24} className={styles.quoteIcon} aria-hidden="true" />
           <p className={styles.quote}>“{current.quote}”</p>
           <div className={styles.person}>
-            <img src={current.photo} alt="" aria-hidden="true" className={styles.photo} />
+            <img
+              src={current.photo}
+              alt=""
+              aria-hidden="true"
+              decoding="async"
+              width="44"
+              height="44"
+              className={styles.photo}
+            />
             <div>
               <p className={styles.name}>{current.name}</p>
               <p className={styles.role}>

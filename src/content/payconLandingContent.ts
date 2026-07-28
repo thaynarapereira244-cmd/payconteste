@@ -228,7 +228,7 @@ export const payconLandingContent = {
       companySector: "Industrial",
       quote:
         "O Robô de pagamentos desenvolvido pela Paycon trouxe um maior controle e segurança para os pagamentos de despesas legais",
-      photo: "/assets/testimonials/testimonial-luiz-tassitani.png",
+      photo: "/assets/testimonials/testimonial-luiz-tassitani.webp",
     },
     {
       id: "andreia-nunes",
@@ -238,7 +238,7 @@ export const payconLandingContent = {
       companySector: "Telecomunicações",
       quote:
         "Com uma acuracidade impressionante de 99% de similaridade em relação aos resultados oficiais da contabilidade, conseguimos gerar prévias confiáveis",
-      photo: "/assets/testimonials/testimonial-andreia-nunes.png",
+      photo: "/assets/testimonials/testimonial-andreia-nunes.webp",
     },
     {
       id: "ana-luiza",
@@ -248,7 +248,7 @@ export const payconLandingContent = {
       companySector: "Educação",
       quote:
         "O resultado foi muito positivo, pois conseguimos encerrar muitos processos e ter resultado significativo na provisão",
-      photo: "/assets/testimonials/testimonial-ana-luiza.png",
+      photo: "/assets/testimonials/testimonial-ana-luiza.webp",
     },
     {
       id: "spc-brasil",
@@ -258,7 +258,7 @@ export const payconLandingContent = {
       companySector: "Serviços",
       quote:
         "A automação otimizou a gestão de ofícios no SPC Brasil. Hoje, o time jurídico ganhou tempo",
-      photo: "/assets/testimonials/testimonial-spc-brasil.png",
+      photo: "/assets/testimonials/testimonial-spc-brasil.webp",
     },
     {
       id: "renata-lopes",
@@ -268,7 +268,7 @@ export const payconLandingContent = {
       companySector: "Seguros",
       quote:
         "Antes, nosso controle de sinistros era feito em planilhas, o que exigia muito esforço manual",
-      photo: "/assets/testimonials/testimonial-renata-lopes.png",
+      photo: "/assets/testimonials/testimonial-renata-lopes.webp",
     },
     {
       id: "marilia-saito",
@@ -278,7 +278,7 @@ export const payconLandingContent = {
       companySector: "Propriedade Intelectual",
       quote:
         "Com a atuação da Paycon, conseguimos replicar o modelo da primeira fase para esses novos tipos documentais",
-      photo: "/assets/testimonials/testimonial-marilia-saito.jpg",
+      photo: "/assets/testimonials/testimonial-marilia-saito.webp",
     },
     {
       id: "rafael-gomes",
@@ -288,7 +288,7 @@ export const payconLandingContent = {
       companySector: "Energia",
       quote:
         "No final do dia, acredito que o grande ganho aqui não está apenas na questão operacional",
-      photo: "/assets/testimonials/testimonial-rafael-gomes.jpg",
+      photo: "/assets/testimonials/testimonial-rafael-gomes.webp",
     },
     {
       id: "julianne-lacerda",
@@ -298,7 +298,7 @@ export const payconLandingContent = {
       companySector: "Tributário",
       quote:
         "Com a ferramenta desenvolvida pela Paycon, conseguimos transformar um processo que era totalmente manual",
-      photo: "/assets/testimonials/testimonial-julianne-lacerda.png",
+      photo: "/assets/testimonials/testimonial-julianne-lacerda.webp",
     },
     {
       id: "vanessa-joaquim",
@@ -308,7 +308,7 @@ export const payconLandingContent = {
       companySector: "Varejo",
       quote:
         "Esse foi o projeto mais emocionante da minha vida profissional. O fechamento era minha maior dor",
-      photo: "/assets/testimonials/testimonial-vanessa-joaquim.png",
+      photo: "/assets/testimonials/testimonial-vanessa-joaquim.webp",
     },
     {
       id: "guilherme-briggs",
@@ -318,7 +318,7 @@ export const payconLandingContent = {
       companySector: "Seguros",
       quote:
         "A solução desenvolvida pela Paycon trouxe uma verdadeira otimização de processos, gerando mais eficiência",
-      photo: "/assets/testimonials/testimonial-guilherme-briggs.png",
+      photo: "/assets/testimonials/testimonial-guilherme-briggs.webp",
     },
     {
       id: "jessica-ferreira",
@@ -328,7 +328,7 @@ export const payconLandingContent = {
       companySector: "Infraestrutura",
       quote:
         "Antes eu chegava a gastar um dia inteiro cruzando manualmente relatórios de base geral",
-      photo: "/assets/testimonials/testimonial-jessica-ferreira.png",
+      photo: "/assets/testimonials/testimonial-jessica-ferreira.webp",
     },
     {
       id: "elys-musso",
@@ -338,7 +338,7 @@ export const payconLandingContent = {
       companySector: "Industrial",
       quote:
         "Antes da ferramenta da Paycon, o cálculo do ticket médio era uma rotina bastante complexa e manual",
-      photo: "/assets/testimonials/testimonial-elys-musso.png",
+      photo: "/assets/testimonials/testimonial-elys-musso.webp",
     },
     {
       id: "giulia-franco",
@@ -347,7 +347,7 @@ export const payconLandingContent = {
       company: "Carrefour",
       companySector: "Varejo",
       quote: "Antes, 8 pessoas perdiam tempo em uma tarefa simples. Agora, com um clique, o robô faz tudo",
-      photo: "/assets/testimonials/testimonial-giulia-franco.png",
+      photo: "/assets/testimonials/testimonial-giulia-franco.webp",
     },
   ] satisfies Testimonial[],
 
@@ -401,55 +401,55 @@ export const payconLandingContent = {
       name: "Ivan Rocha",
       role: "Sócio Administrador",
       bio: "Advogado, consultor, auditor. Experiência com consultivo e contencioso trabalhista. Especialista em Design Thinking de sistemas jurídicos",
-      photo: "/assets/team/team-ivan-rocha.png",
+      photo: "/assets/team/team-ivan-rocha.webp",
     },
     {
       id: "thiago-palma",
       name: "Thiago Palma",
       role: "Sócio Administrador",
       bio: "Advogado, especialista em automação de tarefas e gestão de projetos",
-      photo: "/assets/team/team-thiago-palma.png",
+      photo: "/assets/team/team-thiago-palma.webp",
     },
     {
       id: "thiago-teles",
       name: "Thiago Teles",
       role: "Sócio",
       bio: "Advogado programador, responsável pela gestão das rotinas e planejamento de projetos contínuos",
-      photo: "/assets/team/team-thiago-teles.png",
+      photo: "/assets/team/team-thiago-teles.webp",
     },
   ] satisfies TeamMember[],
 
   partners: [
-    { id: "carrefour", name: "Carrefour", logo: "/assets/partners/partner-carrefour.png" },
-    { id: "claro", name: "Claro", logo: "/assets/partners/partner-claro.png" },
-    { id: "atacadao", name: "Atacadão", logo: "/assets/partners/partner-atacadao.png" },
-    { id: "cbmm", name: "CBMM", logo: "/assets/partners/partner-cbmm.png" },
-    { id: "cea", name: "C&A", logo: "/assets/partners/partner-cea.png" },
-    { id: "braskem", name: "Braskem", logo: "/assets/partners/partner-braskem.png" },
-    { id: "bat-brasil", name: "BAT Brasil", logo: "/assets/partners/partner-bat-brasil.png" },
-    { id: "ambev", name: "Ambev", logo: "/assets/partners/partner-ambev.png" },
-    { id: "cogna", name: "Cogna", logo: "/assets/partners/partner-cogna.png" },
-    { id: "lactalis", name: "Lactalis", logo: "/assets/partners/partner-lactalis.png" },
-    { id: "hyundai", name: "Hyundai", logo: "/assets/partners/partner-hyundai.png" },
-    { id: "heinz", name: "Heinz", logo: "/assets/partners/partner-heinz.png" },
-    { id: "gpa", name: "GPA", logo: "/assets/partners/partner-gpa.png" },
-    { id: "gerdau", name: "Gerdau", logo: "/assets/partners/partner-gerdau.png" },
-    { id: "ford", name: "Ford", logo: "/assets/partners/partner-ford.png" },
-    { id: "energisa", name: "Energisa", logo: "/assets/partners/partner-energisa.png" },
-    { id: "cosan", name: "Cosan", logo: "/assets/partners/partner-cosan.png" },
-    { id: "dasa", name: "Dasa", logo: "/assets/partners/partner-dasa.png" },
-    { id: "solar-coca-cola", name: "Solar Coca-Cola", logo: "/assets/partners/partner-solar-coca-cola.png" },
+    { id: "carrefour", name: "Carrefour", logo: "/assets/partners/partner-carrefour.webp" },
+    { id: "claro", name: "Claro", logo: "/assets/partners/partner-claro.webp" },
+    { id: "atacadao", name: "Atacadão", logo: "/assets/partners/partner-atacadao.webp" },
+    { id: "cbmm", name: "CBMM", logo: "/assets/partners/partner-cbmm.webp" },
+    { id: "cea", name: "C&A", logo: "/assets/partners/partner-cea.webp" },
+    { id: "braskem", name: "Braskem", logo: "/assets/partners/partner-braskem.webp" },
+    { id: "bat-brasil", name: "BAT Brasil", logo: "/assets/partners/partner-bat-brasil.webp" },
+    { id: "ambev", name: "Ambev", logo: "/assets/partners/partner-ambev.webp" },
+    { id: "cogna", name: "Cogna", logo: "/assets/partners/partner-cogna.webp" },
+    { id: "lactalis", name: "Lactalis", logo: "/assets/partners/partner-lactalis.webp" },
+    { id: "hyundai", name: "Hyundai", logo: "/assets/partners/partner-hyundai.webp" },
+    { id: "heinz", name: "Heinz", logo: "/assets/partners/partner-heinz.webp" },
+    { id: "gpa", name: "GPA", logo: "/assets/partners/partner-gpa.webp" },
+    { id: "gerdau", name: "Gerdau", logo: "/assets/partners/partner-gerdau.webp" },
+    { id: "ford", name: "Ford", logo: "/assets/partners/partner-ford.webp" },
+    { id: "energisa", name: "Energisa", logo: "/assets/partners/partner-energisa.webp" },
+    { id: "cosan", name: "Cosan", logo: "/assets/partners/partner-cosan.webp" },
+    { id: "dasa", name: "Dasa", logo: "/assets/partners/partner-dasa.webp" },
+    { id: "solar-coca-cola", name: "Solar Coca-Cola", logo: "/assets/partners/partner-solar-coca-cola.webp" },
     { id: "samsung", name: "Samsung", logo: "/assets/partners/partner-samsung.webp" },
-    { id: "prudential", name: "Prudential", logo: "/assets/partners/partner-prudential.png" },
-    { id: "mondelez", name: "Mondelēz", logo: "/assets/partners/partner-mondelez.png" },
-    { id: "motorola", name: "Motorola", logo: "/assets/partners/partner-motorola.png" },
-    { id: "loggi", name: "Loggi", logo: "/assets/partners/partner-loggi.png" },
-    { id: "lenovo", name: "Lenovo", logo: "/assets/partners/partner-lenovo.png" },
-    { id: "tim", name: "TIM", logo: "/assets/partners/partner-tim.png" },
-    { id: "suzano", name: "Suzano", logo: "/assets/partners/partner-suzano.png" },
-    { id: "sabesp", name: "Sabesp", logo: "/assets/partners/partner-sabesp.png" },
-    { id: "votorantim", name: "Votorantim", logo: "/assets/partners/partner-votorantim.png" },
-    { id: "afya", name: "Afya", logo: "/assets/partners/partner-afya.png" },
+    { id: "prudential", name: "Prudential", logo: "/assets/partners/partner-prudential.webp" },
+    { id: "mondelez", name: "Mondelēz", logo: "/assets/partners/partner-mondelez.webp" },
+    { id: "motorola", name: "Motorola", logo: "/assets/partners/partner-motorola.webp" },
+    { id: "loggi", name: "Loggi", logo: "/assets/partners/partner-loggi.webp" },
+    { id: "lenovo", name: "Lenovo", logo: "/assets/partners/partner-lenovo.webp" },
+    { id: "tim", name: "TIM", logo: "/assets/partners/partner-tim.webp" },
+    { id: "suzano", name: "Suzano", logo: "/assets/partners/partner-suzano.webp" },
+    { id: "sabesp", name: "Sabesp", logo: "/assets/partners/partner-sabesp.webp" },
+    { id: "votorantim", name: "Votorantim", logo: "/assets/partners/partner-votorantim.webp" },
+    { id: "afya", name: "Afya", logo: "/assets/partners/partner-afya.webp" },
   ] satisfies Partner[],
 
   finalCta: {
