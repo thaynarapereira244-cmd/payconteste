@@ -138,13 +138,18 @@ frame por canvas, gerando churn de GC. Agora a coreografia só escreve em
 
 ### Contagens e custo real medido
 
-| Tier | Partículas | Custo de desenho medido |
+| Tier | Partículas | Custo de desenho |
 |---|---|---|
-| high (desktop > 1024px) | 2600 | **5,45 ms/frame** |
-| medium (≤1024px ou touch) | 1500 | 1,80 ms/frame |
-| low (≤640px) | 620 | 0,82 ms/frame |
+| high (desktop > 1024px) | 4200 | ~7,3 ms/frame (estimado) |
+| medium (≤1024px ou touch) | 2500 | ~4,4 ms/frame (estimado) |
+| low (≤640px) | 1100 | **1,91 ms/frame** (medido) |
 
-Orçamento de 60fps = 16,7 ms/frame, então o tier alto usa ~33%. Medido
+Densidades elevadas a pedido (antes 2600/1500/620). O `low` foi medido direto
+(1,91 ms @1100); `high`/`medium` são escalados pela mesma aritmética por
+partícula. A rede de segurança por FPS (`useDevicePerformance`) rebaixa o tier
+se um aparelho real não sustentar a taxa.
+
+Orçamento de 60fps = 16,7 ms/frame, então o tier alto usa ~44%. Medido
 sinteticamente no navegador com a mesma aritmética por partícula (perspectiva +
 `drawImage`). Para ajustar, edite `COUNT_BY_TIER` em `ParticleStage.tsx`.
 
@@ -217,11 +222,11 @@ balançando junto com o mouse. Ambos foram removidos.
 O que existe hoje:
 
 1. **Fundo**: apenas uma luz ambiente radial que acompanha o cursor (≤14px).
-2. **Partículas**: campo de influência **local**, raio de 280px, com força
+2. **Partículas**: campo de influência **local**, raio de 320px, com força
    caindo em `(1 - d/r)²`. Dentro dele cada partícula recebe **dois**
-   componentes: um **radial** (até 50px — o lado humano é repelido e o
+   componentes: um **radial** (até 58px — o lado humano é repelido e o
    tecnológico atraído, dualidade da marca) e uma **corrente tangencial**
-   (`SWIRL_RATIO`) que a faz fluir **ao redor** do cursor. O sentido do giro
+   forte (`SWIRL_RATIO` 0,8) que a faz fluir **ao redor** do cursor. O sentido do giro
    acompanha a direção do movimento do mouse (produto vetorial velocidade ×
    raio), então passar o cursor "arrasta" a nuvem numa curva em vez de só
    afastá-la — é o que dá a sensação de fluido. A força também cresce com a
@@ -233,9 +238,9 @@ O que existe hoje:
    cursor. A hero tem base fixa — a corrente é puramente local, não gira nem
    balança o quadro.
 
-Medido no render real (fase `hero-cloud`): a nuvem em repouso espalha ~70px
-(183×273); com o cursor passando por ela em movimento, sobe para ~83px
-(246×309), crescendo mais no eixo do movimento — a corrente arrastando as
+Medido no render real (fase `hero-cloud`, tier low 1100): a nuvem em repouso
+espalha ~55px; com o cursor passando por ela em movimento, sobe para ~75px
+(+36%), crescendo mais no eixo do movimento — a corrente arrastando as
 partículas na direção do mouse.
 
 Verificado no navegador: com o cursor na extremidade **esquerda** (longe da
@@ -254,9 +259,9 @@ Assim o cursor nunca tira os objetos da trajetória durante uma transição.
 
 Sem tocar em lógica, três níveis:
 
-- **Cursor mais discreto**: reduza `INFLUENCE_RADIUS` (raio, padrão 280px),
-  `MAX_PUSH` (deslocamento radial, padrão 50px) e `SWIRL_RATIO` (peso da
-  corrente tangencial, padrão 0,55) no topo de `ParticleStage.tsx`.
+- **Cursor mais discreto**: reduza `INFLUENCE_RADIUS` (raio, padrão 320px),
+  `MAX_PUSH` (deslocamento radial, padrão 58px) e `SWIRL_RATIO` (peso da
+  corrente tangencial, padrão 0,8) no topo de `ParticleStage.tsx`.
   `RELEASE_RATE` controla a velocidade de retorno. Para um cursor só radial,
   zere `SWIRL_RATIO`; para desligar o campo, zere `MAX_PUSH`.
 - **Por cena**: baixe os valores de `interaction` nos `segments` da seção.

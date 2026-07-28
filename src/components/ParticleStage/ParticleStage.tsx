@@ -22,7 +22,7 @@ import styles from "./ParticleStage.module.css";
  * finais. As seções apenas escrevem fase+progresso em `stageState`.
  */
 
-const COUNT_BY_TIER = { high: 2600, medium: 1500, low: 620 } as const;
+const COUNT_BY_TIER = { high: 4200, medium: 2500, low: 1100 } as const;
 const DPR_CAP = 1.5;
 const FOCAL = 2.1;
 
@@ -35,17 +35,20 @@ const FOCAL = 2.1;
  * partículas dentro de `INFLUENCE_RADIUS`, com falloff quadrático, e o restante
  * do quadro fica imóvel.
  */
-const INFLUENCE_RADIUS = 280;
+const INFLUENCE_RADIUS = 320;
 /** Deslocamento máximo de uma partícula no centro do campo, em px. */
-const MAX_PUSH = 50;
+const MAX_PUSH = 58;
 /**
  * Peso da CORRENTE tangencial em relação ao empurrão radial. É ela que faz as
- * partículas fluírem AO REDOR do cursor (girando no sentido do movimento) em vez
- * de só serem empurradas para longe — é o que dá a sensação de fluido.
+ * partículas fluírem AO REDOR do cursor (girando no sentido do movimento). Um
+ * valor alto deixa a reação bem FLUIDA (a nuvem escorre em volta do cursor).
  */
-const SWIRL_RATIO = 0.55;
-/** Velocidade de retorno à posição de origem quando o cursor se afasta. */
-const RELEASE_RATE = 0.03;
+const SWIRL_RATIO = 0.8;
+/**
+ * Velocidade de retorno à posição de origem quando o cursor se afasta. Mais
+ * baixo = assenta devagar = mais rastro/fluidez.
+ */
+const RELEASE_RATE = 0.022;
 
 type SpriteSet = { gray: HTMLCanvasElement; blue: HTMLCanvasElement; core: HTMLCanvasElement };
 
@@ -268,9 +271,9 @@ export function ParticleStage() {
             const tX = radial * nx - swirl * ny;
             const tY = radial * ny + swirl * nx;
 
-            // arrasto por partícula: o miolo acompanha, a borda fica para trás →
-            // rastro/deformação orgânica em vez de bloco rígido
-            const follow = 0.14 - lib.cloudLag[i] * 0.05;
+            // arrasto por partícula: o miolo acompanha, a borda fica bem para
+            // trás → rastro longo e escorregadio, a leitura de fluido
+            const follow = 0.12 - lib.cloudLag[i] * 0.06;
             offX[i] += (tX - offX[i]) * follow;
             offY[i] += (tY - offY[i]) * follow;
           }
