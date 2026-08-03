@@ -18,7 +18,11 @@ export type Metric = {
 export type SolutionProduct = {
   id: string;
   title: string;
-  description: string;
+  /**
+   * Opcional: "Controladoria" e "Societário" não têm frase de abertura no site
+   * oficial — o card vai direto do título para a lista de recursos.
+   */
+  description?: string;
   highlight?: string;
   features?: string[];
   cta?: { label: string; placement: string };
@@ -95,7 +99,7 @@ export const payconLandingContent = {
     subheadline:
       "Automações jurídicas sob medida integradas ao sistema que você já usa.",
     body:
-      "Muitos oferecem novos sistemas que trazem novas complicações. Na Paycon, fazemos o oposto: implementamos inteligência dentro das ferramentas que você já possui.",
+      "Muitos oferecem novos sistemas que trazem novas complicações. Na Paycon, fazemos o oposto: implementamos inteligência dentro das ferramentas que você já possui. Nós não substituímos suas ferramentas; nós extraímos o máximo potencial do que já está instalado na sua máquina.",
     cta: { label: "QUERO SABER MAIS", href: "#solucoes", placement: "hero" },
   },
 
@@ -112,17 +116,22 @@ export const payconLandingContent = {
       {
         title: "DNA Jurídico e Inteligência sob Medida",
         description:
-          "Nossas soluções nascem de dentro do jurídico — não são adaptações de tecnologia genérica.",
+          "Entregamos inteligência aplicada à sua necessidade real. Desenvolvemos cada automação pensando em como devolver fluidez à sua rotina, garantindo que a tecnologia seja um meio para o seu desenvolvimento profissional.",
       },
       {
         title: "P2P: De Pessoa para Pessoa",
         description:
-          "Tecnologia de Advogados para Advogados: conhecemos a complexidade operacional porque vivemos isso na prática. Somos uma empresa de tecnologia criada por advogados. Nossas soluções são desenhadas para fazer sentido absoluto no dia a dia jurídico.",
+          "Acreditamos em tecnologia humanizada e personalizada, construída a partir da sua necessidade específica e não de modelos prontos.",
+      },
+      {
+        title: "Tecnologia de Advogados para Advogados",
+        description:
+          "Conhecemos a complexidade operacional porque vivemos isso na prática. Somos uma empresa de tecnologia criada por advogados. Nossas soluções são desenhadas para fazer sentido absoluto no dia a dia jurídico.",
       },
       {
         title: "Eficiência Dentro de Casa",
         description:
-          "Tudo é construído para rodar dentro das ferramentas que você já possui, eliminando a curva de aprendizado.",
+          "Tudo é construído para rodar dentro das ferramentas que você já possui, eliminando a curva de aprendizado e respeitando o seu sistema atual.",
       },
     ],
   },
@@ -132,7 +141,7 @@ export const payconLandingContent = {
       id: "insights",
       title: "Insights: Inteligência para Baixa de Provisão",
       description:
-        "Com o serviço de Insights, identificamos oportunidades reais para baixa de provisão diretamente no seu banco de dados.",
+        "Com o serviço de Insights, identificamos oportunidades reais para baixa de provisão diretamente no seu banco de dados. Através de uma análise técnica e precisa, garantimos que o seu balanço jurídico reflita a realidade, eliminando distorções financeiras.",
       highlight: "15 a 25% da base atual de processos costuma ser encerrada na primeira rodagem",
       cta: { label: "SOLICITAR DEMONSTRAÇÃO", placement: "solutions" },
     },
@@ -151,12 +160,13 @@ export const payconLandingContent = {
     {
       id: "contratos",
       title: "Contratos",
-      description: "Gestão inteligente de contratos, do cadastro ao vencimento.",
+      description:
+        "Apenas com o acesso ao local onde estão os contratos, extraímos, interpretamos, classificamos e organizamos os seus contratos.",
       features: [
         "Contratos automáticos",
         "Organizador de documentos",
         "Gerador automático",
-        "Painel com vencimentos, nomes das partes, multa etc.",
+        "Painel com vencimentos, nomes das partes, multa etc",
       ],
     },
     {
@@ -189,20 +199,20 @@ export const payconLandingContent = {
     {
       id: "controladoria",
       title: "Controladoria",
-      description: "Previsibilidade e controle financeiro do jurídico.",
+      // sem frase de abertura no site oficial — vai direto para os recursos
       features: [
         "Fechamento Contábil",
         "Modelo de previsibilidade de pagamentos",
         "Orçamento",
         "Cockpit - seu painel automático de indicadores",
-        "APP para controle e elaboração dos exercícios",
-        "Cockpit robusto em Excel",
+        "seu APP para controle e elaboração dos exercícios",
+        "ou um cockpit robusto em Excel",
       ],
     },
     {
       id: "societario",
       title: "Societário",
-      description: "Governança societária organizada e rastreável.",
+      // sem frase de abertura no site oficial — vai direto para os recursos
       features: [
         "Gerador de procurações e substabelecimentos",
         "Árvore de decisão (quem pode assinar um documento?)",
@@ -226,8 +236,9 @@ export const payconLandingContent = {
       role: "Gerente de Planejamento Jurídico",
       company: "Braskem",
       companySector: "Industrial",
+      // "SLA" repetido é do próprio site oficial (verificado no DOM ao vivo), não erro de transcrição
       quote:
-        "O Robô de pagamentos desenvolvido pela Paycon trouxe um maior controle e segurança para os pagamentos de despesas legais",
+        "O Robô de pagamentos desenvolvido pela Paycon trouxe um maior controle e segurança para os pagamentos de despesas legais, além da redução efetiva do SLA redução efetiva do SLA de pagamentos.",
       photo: "/assets/testimonials/testimonial-luiz-tassitani.webp",
     },
     {
@@ -237,17 +248,17 @@ export const payconLandingContent = {
       company: "Claro",
       companySector: "Telecomunicações",
       quote:
-        "Com uma acuracidade impressionante de 99% de similaridade em relação aos resultados oficiais da contabilidade, conseguimos gerar prévias confiáveis",
+        "Com uma acuracidade impressionante de 99% de similaridade em relação aos resultados oficiais da contabilidade, conseguimos gerar prévias confiáveis e antecipadas, o que nos trouxe previsibilidade e segurança. Ter o fechamento 'na mão' antes da consolidação oficial nos proporcionou a tranquilidade necessária para atuar com mais estratégia e menos urgência.",
       photo: "/assets/testimonials/testimonial-andreia-nunes.webp",
     },
     {
       id: "ana-luiza",
       name: "Ana Luiza",
       role: "Supervisora de Legal Ops",
-      company: "Afya",
+      company: "Afya Educacional",
       companySector: "Educação",
       quote:
-        "O resultado foi muito positivo, pois conseguimos encerrar muitos processos e ter resultado significativo na provisão",
+        "O resultado foi muito positivo, pois conseguimos encerrar muitos processos e ter resultado significativo na provisão.",
       photo: "/assets/testimonials/testimonial-ana-luiza.webp",
     },
     {
@@ -257,7 +268,7 @@ export const payconLandingContent = {
       company: "SPC Brasil",
       companySector: "Serviços",
       quote:
-        "A automação otimizou a gestão de ofícios no SPC Brasil. Hoje, o time jurídico ganhou tempo",
+        "A automação otimizou a gestão de ofícios no SPC Brasil. Hoje, o time jurídico ganhou tempo, reduziu riscos e melhorou a eficiência operacional. O que antes exigia 4 pessoas por 2 dias inteiros, agora acontece de forma simples, rápida e precisa. Missão cumprida!",
       photo: "/assets/testimonials/testimonial-spc-brasil.webp",
     },
     {
@@ -267,7 +278,7 @@ export const payconLandingContent = {
       company: "Braskem",
       companySector: "Seguros",
       quote:
-        "Antes, nosso controle de sinistros era feito em planilhas, o que exigia muito esforço manual",
+        "Antes, nosso controle de sinistros era feito em planilhas, o que exigia muito esforço manual e gerava riscos de erros e perda de prazos. Com a Paycon, conseguimos transformar essa realidade: eles entenderam nossas necessidades, traduziram uma demanda complexa em um sistema robusto no Power Apps e entregaram uma solução que hoje é essencial para nossa gestão. Ganhamos agilidade, segurança e visibilidade estratégica para decisões mais assertivas.",
       photo: "/assets/testimonials/testimonial-renata-lopes.webp",
     },
     {
@@ -277,7 +288,7 @@ export const payconLandingContent = {
       company: "Braskem",
       companySector: "Propriedade Intelectual",
       quote:
-        "Com a atuação da Paycon, conseguimos replicar o modelo da primeira fase para esses novos tipos documentais",
+        "Com a atuação da Paycon, conseguimos replicar o modelo da primeira fase para esses novos tipos documentais, melhorando significativamente a organização e facilitando o acesso às informações. Hoje, encontramos rapidamente os documentos e temos muito mais segurança e eficiência nos processos.",
       photo: "/assets/testimonials/testimonial-marilia-saito.webp",
     },
     {
@@ -287,7 +298,7 @@ export const payconLandingContent = {
       company: "Energisa",
       companySector: "Energia",
       quote:
-        "No final do dia, acredito que o grande ganho aqui não está apenas na questão operacional",
+        "No final do dia, acredito que o grande ganho aqui não está apenas na questão operacional ou na execução das atividades em si. O verdadeiro valor está na segurança, na compliance e na mitigação de riscos em auditorias. Essa ferramenta trouxe uma estrutura robusta para o processo, garantindo que os pagamentos aos fornecedores sejam feitos corretamente, sempre dentro das regras contratuais e sem qualquer desvio de remuneração. Esse, sem dúvida, foi o principal ganho que esperávamos.",
       photo: "/assets/testimonials/testimonial-rafael-gomes.webp",
     },
     {
@@ -297,7 +308,7 @@ export const payconLandingContent = {
       company: "Braskem",
       companySector: "Tributário",
       quote:
-        "Com a ferramenta desenvolvida pela Paycon, conseguimos transformar um processo que era totalmente manual",
+        "Com a ferramenta desenvolvida pela Paycon, conseguimos transformar um processo que era totalmente manual e descentralizado em um sistema inteligente, intuitivo e 100% seguro. Hoje temos total controle sobre nossos documentos jurídicos, com padronização, rastreabilidade e autonomia para toda a equipe. A visualização em tempo real nos permite tomar decisões com mais rapidez e confiança. É uma solução que realmente trouxe agilidade e nos libertou de retrabalhos e dependência de outras áreas.",
       photo: "/assets/testimonials/testimonial-julianne-lacerda.webp",
     },
     {
@@ -307,7 +318,7 @@ export const payconLandingContent = {
       company: "Atacadão",
       companySector: "Varejo",
       quote:
-        "Esse foi o projeto mais emocionante da minha vida profissional. O fechamento era minha maior dor",
+        "Esse foi o projeto mais emocionante da minha vida profissional. O fechamento era minha maior dor, e hoje consigo gerar tudo sozinha, com precisão e tranquilidade. Ganhamos tempo, segurança e previsibilidade.",
       photo: "/assets/testimonials/testimonial-vanessa-joaquim.webp",
     },
     {
@@ -317,7 +328,7 @@ export const payconLandingContent = {
       company: "Prudential",
       companySector: "Seguros",
       quote:
-        "A solução desenvolvida pela Paycon trouxe uma verdadeira otimização de processos, gerando mais eficiência",
+        "A solução desenvolvida pela Paycon trouxe uma verdadeira otimização de processos, gerando mais eficiência e eficácia em toda a nossa rotina de faturamento. Ganhamos em organização, controle e produtividade — com impactos diretos na qualidade do nosso dia a dia.",
       photo: "/assets/testimonials/testimonial-guilherme-briggs.webp",
     },
     {
@@ -327,7 +338,7 @@ export const payconLandingContent = {
       company: "Monte Rodovias",
       companySector: "Infraestrutura",
       quote:
-        "Antes eu chegava a gastar um dia inteiro cruzando manualmente relatórios de base geral",
+        "Antes eu chegava a gastar um dia inteiro cruzando manualmente relatórios de base geral e contingência — ainda assim corríamos risco de erro. Com a nova ferramenta, toda a base de processos e valores está reunida em um único lugar, sem retrabalho e sem margem para falhas. Hoje faço leituras estratégicas em minutos, obtenho uma visão objetiva do contencioso e tomo decisões com muito mais rapidez e segurança.",
       photo: "/assets/testimonials/testimonial-jessica-ferreira.webp",
     },
     {
@@ -337,7 +348,7 @@ export const payconLandingContent = {
       company: "Ford",
       companySector: "Industrial",
       quote:
-        "Antes da ferramenta da Paycon, o cálculo do ticket médio era uma rotina bastante complexa e manual",
+        "Antes da ferramenta da Paycon, o cálculo do ticket médio era uma rotina bastante complexa e manual, que tomava cerca de um dia e meio entre extração de bases, validações e conferências. Hoje, com a solução automatizada, conseguimos realizar toda a análise em cerca de 3 horas, com muito mais precisão e governança, podendo dedicar mais tempo em outras atividades estratégicas que realmente exigem a atuação humana. A ferramenta trouxe agilidade, confiabilidade e nos permite compartilhar os resultados rapidamente com os envolvidos. Foi um projeto que trouxe mudança significativa no dia a dia do Legal Ops.",
       photo: "/assets/testimonials/testimonial-elys-musso.webp",
     },
     {
@@ -346,7 +357,7 @@ export const payconLandingContent = {
       role: "",
       company: "Carrefour",
       companySector: "Varejo",
-      quote: "Antes, 8 pessoas perdiam tempo em uma tarefa simples. Agora, com um clique, o robô faz tudo",
+      quote: "Antes, 8 pessoas perdiam tempo em uma tarefa simples. Agora, com um clique, o robô faz tudo. Ganhamos tempo e segurança jurídica.",
       photo: "/assets/testimonials/testimonial-giulia-franco.webp",
     },
   ] satisfies Testimonial[],

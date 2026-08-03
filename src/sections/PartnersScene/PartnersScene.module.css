@@ -75,6 +75,14 @@
   invisíveis sobre preto). Em vez de aplicar grayscale/invert — que
   descaracterizaria as marcas — cada logo recebe um painel off-white próprio.
   Assim TODOS aparecem nas cores originais, sem tocar nos arquivos.
+
+  O painel precisa ser OPACO (`rgb`, sem alpha). Confirmado por amostragem de
+  pixel: o arquivo do Afya tem fundo branco puro `#ffffff` já embutido na
+  imagem, enquanto quase todos os outros logos (Sabesp, C&A, Samsung,
+  Votorantim, Carrefour, Suzano...) são transparentes — com o painel em
+  alpha < 1 (como estava antes), ~8% do fundo escuro da página vazava por
+  trás deles, deixando esses logos visivelmente mais escuros que o Afya. Um
+  painel opaco elimina essa diferença de tom entre os 30 logos.
 */
 .cell {
   position: relative;
@@ -119,7 +127,7 @@
 
 .cell:hover {
   border-color: rgba(136, 144, 211, 0.55);
-  background: rgba(255, 255, 255, 0.98);
+  background: rgb(244, 245, 248);
   box-shadow: 0 0 0 1px rgba(136, 144, 211, 0.2), 0 10px 26px -12px var(--paycon-glow);
   scale: 1.03;
 }
@@ -160,7 +168,7 @@
   /* logos sempre visíveis, sem depender do progresso de scroll */
   /* JS não roda em reduced motion: os estados finais vêm do CSS */
   .cell {
-    background: rgba(244, 245, 248, 0.92) !important;
+    background: rgb(244, 245, 248) !important;
     border-color: rgba(255, 255, 255, 0.11) !important;
     transform: none !important;
   }

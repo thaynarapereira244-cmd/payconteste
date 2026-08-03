@@ -47,7 +47,14 @@ export function PartnersScene() {
          */
         const depth = (col - COLUMNS / 2) * 5;
         el.style.transform = `translateZ(${depth.toFixed(1)}px)`;
-        el.style.background = `rgba(244, 245, 248, ${(t * 0.92).toFixed(3)})`;
+        /**
+         * Alpha vai até 1 (opaco), não 0.92 como antes — painel translúcido
+         * deixava o fundo escuro da página vazar por trás de logos com arquivo
+         * transparente (a maioria), ficando visivelmente mais escuro que o
+         * Afya (que tem branco opaco embutido no próprio arquivo). Ver o
+         * comentário em PartnersScene.module.css `.cell`.
+         */
+        el.style.background = `rgba(244, 245, 248, ${t.toFixed(3)})`;
         el.style.borderColor = `rgba(255, 255, 255, ${(0.05 + t * 0.06).toFixed(3)})`;
 
         const img = el.querySelector("img");

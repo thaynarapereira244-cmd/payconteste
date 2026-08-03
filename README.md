@@ -560,6 +560,117 @@ chamava `ScrollTrigger.getAll().forEach(t => t.kill())`, matando triggers de
 componentes-filho. Corrigido para matar apenas o `ScrollSmoother` que o próprio
 `App` criou.
 
+## Ressincronização de copy com o site oficial (rodada 10)
+
+O site fonte (`lp.payconautomacoes.com.br`) mudou desde a captura original de
+2026-07-27 — e havia truncamentos que não vieram de lá. Comparei o texto ATUAL
+do site ao vivo (lido do DOM real, não de cache) contra `payconLandingContent.ts`
+campo a campo e corrigi todas as divergências encontradas:
+
+- **Todos os 13 depoimentos estavam truncados** — cortados no meio da frase.
+  Reescritos com o texto completo, lido diretamente do `textContent` de cada
+  card no site ao vivo. Um deles (Luiz Tassitani) tem uma frase duplicada
+  ("...redução efetiva do SLA redução efetiva do SLA de pagamentos.") — verifiquei
+  que é assim no próprio DOM da fonte, não um erro de transcrição minha; mantido
+  verbatim, com comentário no código explicando.
+- **`solutionsIntro.principles` tinha só 3 itens com texto errado** — o site
+  oficial tem 4 princípios distintos ("DNA Jurídico", "P2P: De Pessoa para
+  Pessoa", "Tecnologia de Advogados para Advogados", "Eficiência Dentro de
+  Casa"); a versão anterior tinha misturado a descrição de dois deles num só.
+- **`solutions.insights.description`** estava faltando a segunda frase
+  ("Através de uma análise técnica e precisa...").
+- **`solutions.contratos.description`** era uma paráfrase inventada
+  ("Gestão inteligente de contratos, do cadastro ao vencimento") — trocada pela
+  frase verbatim do site.
+- **`solutions.controladoria` e `solutions.societario` tinham descrição
+  inventada** que não existe no site oficial (esses dois cards vão direto do
+  título para a lista de recursos, sem frase de abertura). `description` virou
+  campo opcional no tipo `SolutionProduct`, e `SolutionsScene.tsx` só renderiza
+  o parágrafo quando ele existe.
+- **Ana Luiza**: byline no site é "Supervisora de Legal Ops na Afya
+  Educacional" — `company` corrigido de `"Afya"` para `"Afya Educacional"`.
+
+Verificado que os cards de depoimento crescem para acomodar o texto completo
+sem cortar nada (`.card` usa `min-height`, não `height` fixo) — medido: 0px de
+transbordo até no depoimento mais longo (495 caracteres, Julianne Lacerda).
+
+### Fundo dos logos de clientes — tom uniforme
+
+Bug relatado: os logos de clientes pareciam ter tons de branco diferentes entre
+si. Causa raiz confirmada por amostragem de pixel (canto do arquivo): o logo do
+Afya tem fundo branco **opaco** (`#ffffff`) já embutido na imagem, enquanto
+quase todos os outros (Sabesp, C&A, Samsung, Votorantim, Carrefour, Suzano...)
+são **transparentes**. O painel do card atrás de cada logo estava em
+`opacity: 0.92`, então ~8% do fundo escuro da página vazava por trás dos logos
+transparentes — só o Afya, com branco já opaco no arquivo, escapava desse
+escurecimento. Corrigido tornando o painel opaco (`rgb(244,245,248)`, sem
+alpha) em `PartnersScene.tsx` (reveal por scroll) e `PartnersScene.module.css`
+(hover e reduced-motion). Medido: os 30 logos convergem para o mesmo
+`rgb(244, 245, 248)` depois do scroll assentar.
+
+Sabesp já estava no array `partners` e renderizando (30/30 células, sem
+slicing) — confirmado, nenhuma mudança de código foi necessária para ele.
+
+## Hero: gráfico de cards no repouso, partículas assumem ao rolar
+
+A pedido, o estado de REPOUSO da hero (o que aparece antes de rolar) trocou de
+nuvem de partículas para um gráfico de produto: um hub central com ícones
+satélite conectados por linhas tracejadas — inspirado no ARRANJO de uma
+referência visual (hub + cards + conectores + badge) fornecida pelo usuário.
+
+**Original em tudo que é da marca**: paleta azul/cinza da Paycon (a referência
+usava verde — não copiado), ícones e ângulos próprios (`Workflow` no hub,
+`FileText`/`Link2`/`CheckCircle2` nos satélites — ecoando a própria copy da
+hero: tarefas, integração, um clique), e **sem nenhuma métrica ou rótulo
+inventado**: o badge flutuante é só um ícone de check, sem número (a
+referência tinha "48%" — não replicado, pois não existe esse dado na Paycon).
+
+Componente: `src/components/HeroIntroGraphic/HeroIntroGraphic.tsx`. Hub e
+satélites ficam num espaço de coordenadas 400×300 compartilhado entre os cards
+(posicionados em `%`) e o SVG dos conectores (`viewBox` nos mesmos pontos) —
+alinham em qualquer largura sem conversão manual. Entrada animada por GSAP
+(hub → linhas → satélites → badge, com `stagger`); giro/flutuação sutil por
+CSS (`prefers-reduced-motion` desliga via `@media`, mesmo padrão do resto do
+projeto). Tilt de cursor de 5° via `useTilt` — o MESMO hook já usado na rede de
+parceiros, camada 3, sem criar rAF próprio.
+
+**Ao rolar, o gráfico desvanece e as partículas assumem** a narrativa que já
+existia (nuvem → núcleo → PAYCON), sem interrupção:
+
+- O segmento `hero-cloud` (em `PayconHero.tsx`) ganhou `opacity: [0, 1]` — as
+  partículas entram em 0% e chegam a 100% de opacidade ao final da fase
+  (22% do scroll da hero).
+- `onProgress` desvanece o gráfico linearmente até `GRAPHIC_FADE_OUT_END`
+  (14% do scroll) — **antes** das partículas chegarem a 100%, então não há vão:
+  no instante em que o gráfico some, as partículas já estão a ~64% visíveis.
+- Medido (crossfade real, não estimado): p=0 → gráfico 1,00 / partículas 0,00;
+  p=0,05 → 0,64 / 0,23; p=0,10 → 0,29 / 0,46; **p=0,14 → 0,001 / 0,64**; p=0,20
+  → 0 / 0,91; p=0,22 → 0 / 1,00 (fase muda para `hero-gather`).
+- `HeroIntroGraphic` só é renderizado com `!reducedMotion`: sob movimento
+  reduzido não há scroll-driven nada, e o palco já mostra sua própria nuvem
+  estática (comportamento anterior, inalterado) — sem os dois se sobrepondo.
+
+**Detalhe de implementação que evitou um bug de layout**: a ref que o pai usa
+para controlar a opacidade aponta para o PRÓPRIO elemento `position: absolute`
+do gráfico (via `forwardRef`), não para um `<div>` wrapper. Um wrapper com
+`transform`/`opacity` aplicados via JS criaria um novo bloco de contenção
+(`containing block`) para esse `position: absolute`, e o `left/top` em `%` do
+gráfico passaria a resolver contra o wrapper (tamanho zero) em vez do `.sticky`
+— quebrando a posição assim que o scroll começasse.
+
+**Bug encontrado e corrigido (relatado pelo usuário, com print): partículas
+"acendiam" ao passar o mouse sobre o gráfico, mesmo em repouso.** A causa era
+o reforço de alpha por proximidade do cursor —
+`alpha = Math.min(1, alpha + f * 0.5)` em `ParticleStage.tsx` — que SOMAVA
+visibilidade direto, sem passar pelo `stageOpacity` que devia manter as
+partículas invisíveis (0) enquanto o `HeroIntroGraphic` está em cena. Corrigido
+multiplicando o reforço por `stageOpacity`: `alpha + f * 0.5 * stageOpacity`.
+Medido: com `stageOpacity=0`, 0 pixels acesos com ou sem cursor (antes:
+qualquer aproximação do mouse já pintava partículas); com `stageOpacity=1`
+(demais fases), o reforço de proximidade continua idêntico a antes (nuvem
+cresce 1398→1658 partículas visíveis com o cursor perto — mesmo número de
+antes desta correção).
+
 ## Hero: nuvem que segue o cursor
 
 A hero **não usa mais mãos nem dedos**. A forma principal é uma nuvem de
@@ -581,13 +692,20 @@ luminosa migra ~35% da largura mantendo a escala — não é objeto rígido nem 
   (`baseLerp * (0.3 + lag * 1.1)`): as de dentro acompanham rápido, as de fora
   ficam atrás. **O rastro e a deformação vêm daí** — não há efeito de trail.
 - O centro da nuvem é o ponteiro já amortecido (`pointer.x/y`, damping 0.075),
-  limitado por `FOLLOW_X` (0.62) e `FOLLOW_Y` (0.22). O limite vertical é menor
-  de propósito: com o raio da nuvem, valores maiores fazem a borda superior
-  alcançar o CTA.
+  limitado por `FOLLOW_X` e `FOLLOW_Y`.
 
-Medido: x de −0,545 a +0,521 (≈480px em 1440) e y de −0,18 a +0,191 (≈167px),
-retornando ao repouso quando o cursor volta ao centro. Folga de ~32px entre a
-borda superior da nuvem e o CTA no extremo.
+**Ajuste (a pedido — "vira um rastro do cursor"):** os limites eram pequenos
+demais (`FOLLOW_X` 0.62, `FOLLOW_Y` 0.22) e prendiam a nuvem numa janela central
+estreita — na prática ela quase não se movia. Subidos para `FOLLOW_X = 1.05` e
+`FOLLOW_Y = 0.78`, a nuvem agora viaja por boa parte da hero. O atraso que faz
+parecer rastro (e não teleporte) já existia no damping do `stepPointer` — só o
+alcance estava curto.
+
+Medido nos 4 cantos da viewport (720×694, canvas real, cursor movido e damping
+convergido): o centroide da nuvem chega a **13–81px** do alvo do cursor em cada
+canto — antes, com os limites antigos, ela praticamente não saía do centro. O
+header (`z-index: 100`) fica sempre acima do palco (`z-index: 0`), então a nuvem
+pode passar por baixo do texto sem conflito de camadas.
 
 **Fases da hero** (renomeadas): `hero-cloud` → `hero-gather` → `hero-condense`
 → `hero-core` → `hero-entry`. A nuvem segue o cursor nas duas primeiras, condensa
@@ -899,6 +1017,9 @@ avisos), e verificação **medida** no navegador:
 | Hash direto | `#clientes` pousa em 5271px na 1ª tentativa, fase `network` |
 | ScrollTriggers | 13 no total (9 de cena + 4 do marcador ativo), 1 smoother, `scroll-behavior: auto` |
 | Caminho sem smoother (reduced motion) | `window.scrollTo` move a página (0 → 7971) |
+| HeroIntroGraphic: crossfade com as partículas | medido sem vão: p=0,14 → gráfico 0,001 / partículas 0,636 |
+| HeroIntroGraphic: mobile 390px | sem overlap com copy/CTA, margem clara até "role para conectar" |
+| HeroIntroGraphic: build de produção | console limpo, JS +1,06 kB gzip, CSS +0,43 kB gzip |
 
 O formulário teve validação exercitada (os 6 erros de campo obrigatório
 aparecem com `role="alert"`), **sem completar um envio real** — cada envio cria

@@ -132,7 +132,8 @@ export function SolutionsScene() {
             >
               <span className={styles.cardIndex}>{String(i + 1).padStart(2, "0")}</span>
               <h3 className={styles.cardTitle}>{card.title}</h3>
-              <p className={styles.cardText}>{card.description}</p>
+              {/* Controladoria/Societário não têm frase de abertura no site oficial */}
+              {card.description ? <p className={styles.cardText}>{card.description}</p> : null}
               {card.features ? (
                 <ul className={styles.features} data-dense={card.features.length > 5 ? "true" : undefined}>
                   {card.features.map((f) => (
