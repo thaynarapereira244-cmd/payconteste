@@ -288,7 +288,16 @@ export function ParticleStage() {
         const screenY = baseY + offY[i];
         if (f > 0) {
           size *= 1 + f * 1.1;
-          alpha = Math.min(1, alpha + f * 0.5);
+          /**
+           * O reforço de alpha pela proximidade do cursor precisa respeitar
+           * `stageOpacity` — sem o `* stageOpacity` aqui, aproximar o mouse
+           * "acendia" as partículas mesmo com o palco em opacidade 0 (ex.: no
+           * repouso da hero, antes de rolar, quando o HeroIntroGraphic é quem
+           * deve estar visível). Bug relatado: bolinhas apareciam por baixo do
+           * gráfico de cards ao passar o mouse. Em qualquer outra fase, onde
+           * `stageOpacity` já é 1, este fator não muda nada.
+           */
+          alpha = Math.min(1, alpha + f * 0.5 * stageOpacity);
         }
 
         // contenção opcional na região da cena (borda suave)

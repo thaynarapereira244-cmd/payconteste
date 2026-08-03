@@ -47,12 +47,19 @@ const easeInOut = (t: number) => (t < 0.5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2,
  * esse limite ela sairia do quadro e passaria por cima da copy.
  */
 const CLOUD_R = 0.34;
-const FOLLOW_X = 0.62;
 /**
- * O seguimento vertical é menor de propósito: com o raio da nuvem, valores
- * maiores fazem a borda superior alcançar o CTA da hero.
+ * ALCANCE DE SEGUIMENTO — a pedido, a nuvem virou um RASTRO do cursor: o
+ * centro dela vai de fato até onde o mouse está, em vez de só se deslocar
+ * dentro de uma janela central pequena. O atraso que faz parecer rastro (e
+ * não teleporte) já vem do damping em `stepPointer` — aqui é só o alcance.
+ *
+ * X mais largo que Y: a composição é mais larga que alta, e um alcance
+ * vertical igual ao horizontal levaria o núcleo por cima do header (z-index
+ * 100, então não haveria conflito visual, mas o efeito ficaria estranho saindo
+ * por cima da nav).
  */
-const FOLLOW_Y = 0.22;
+const FOLLOW_X = 1.05;
+const FOLLOW_Y = 0.78;
 
 /**
  * Wordmark oficial. A escala vertical vem da PROPORÇÃO REAL da caixa de tinta
