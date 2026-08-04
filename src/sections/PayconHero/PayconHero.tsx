@@ -81,8 +81,15 @@ export function PayconHero() {
           </a>
         </div>
 
-        {/* Gráfico de repouso: cards conectados. É todo o visual da hero — fixo, sem morph. */}
-        <HeroIntroGraphic />
+        {/*
+          Gráfico de repouso: cards conectados. É todo o visual da hero — fixo,
+          sem morph. O tamanho da caixa vem de FORA (`.graphicSlot`, em fluxo
+          normal depois de `.copy`) — o componente só preenche o espaço
+          reservado, nunca se posiciona por conta própria.
+        */}
+        <div className={styles.graphicSlot}>
+          <HeroIntroGraphic />
+        </div>
 
         <span className={styles.scrollHint} aria-hidden="true">
           ROLE PARA CONECTAR

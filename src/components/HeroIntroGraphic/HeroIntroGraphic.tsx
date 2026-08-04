@@ -84,7 +84,7 @@ export function HeroIntroGraphic() {
       ref={tiltRef}
       className={styles.wrap}
       aria-hidden="true"
-      style={{ transform: "translate(-50%, -50%) perspective(900px) rotateX(var(--tilt-x, 0deg)) rotateY(var(--tilt-y, 0deg))" }}
+      style={{ transform: "perspective(900px) rotateX(var(--tilt-x, 0deg)) rotateY(var(--tilt-y, 0deg))" }}
     >
       <svg className={styles.lines} viewBox={`0 0 ${SPACE.w} ${SPACE.h}`}>
         {SATELLITES.map((s) => (

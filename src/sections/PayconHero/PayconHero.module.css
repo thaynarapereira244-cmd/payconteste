@@ -3,23 +3,30 @@
   min-height: 100vh;
 }
 
-/* Sem pin: `min-height` (não `height` fixo) para não cortar conteúdo caso a
-   composição precise de mais espaço do que 100vh num viewport baixo/estreito. */
+/*
+  Sem pin: `min-height` (não `height` fixo) para não cortar conteúdo caso a
+  composição precise de mais espaço do que 100vh num viewport baixo/estreito.
+
+  FLUXO NORMAL, não posicionamento absoluto independente. Antes `.copy` (topo,
+  em `clamp(rem/vh)`) e o gráfico (em `top: 68%` do próprio módulo) eram
+  posicionados cada um por conta própria, sem relação um com o outro — em
+  viewports mais baixos (medido: 918×650) o gráfico ficava 58px ACIMA do fim
+  do botão, sobrepondo os dois. Com `.sticky` como flex column, o gráfico
+  sempre nasce DEPOIS do fim real da copy, qualquer que seja a altura do
+  headline/CTA — sobreposição deixa de ser possível por construção.
+*/
 .sticky {
   position: relative;
   min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: clamp(2rem, 6vh, 3.5rem);
+  padding-block: clamp(5rem, 13vh, 7.5rem) clamp(3rem, 8vh, 4rem);
 }
 
-/*
-  Composição da referência: bloco de texto centralizado na área SUPERIOR,
-  deixando a metade inferior livre para os dois dedos e o núcleo.
-  Muito espaço negativo — nenhum painel ou métrica na hero.
-*/
 .copy {
-  position: absolute;
-  top: clamp(7.5rem, 17vh, 11rem);
-  left: 50%;
-  transform: translateX(-50%);
   width: min(52rem, 88vw);
   display: flex;
   flex-direction: column;
@@ -27,6 +34,14 @@
   text-align: center;
   gap: 1.15rem;
   will-change: transform, opacity;
+}
+
+/* mesmo tamanho que o `.wrap` de HeroIntroGraphic usava sozinho — agora o
+   tamanho vem de fora, e o componente só preenche esta caixa (`inset: 0`) */
+.graphicSlot {
+  position: relative;
+  width: min(26rem, 80vw);
+  aspect-ratio: 4 / 3;
 }
 
 .headline {
@@ -93,10 +108,17 @@
 }
 
 @media (max-width: 900px) {
+  .sticky {
+    padding-block: clamp(4.5rem, 11vh, 6rem) clamp(2.5rem, 7vh, 3.5rem);
+  }
+
   .copy {
-    top: clamp(6rem, 14vh, 8rem);
     width: min(34rem, 90vw);
     gap: 0.95rem;
+  }
+
+  .graphicSlot {
+    width: min(20rem, 84vw);
   }
 
   .headline {

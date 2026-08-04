@@ -560,6 +560,38 @@ chamava `ScrollTrigger.getAll().forEach(t => t.kill())`, matando triggers de
 componentes-filho. Corrigido para matar apenas o `ScrollSmoother` que o próprio
 `App` criou.
 
+## Bug: gráfico sobrepondo o botão da hero (rodada 14)
+
+Relatado com print: o `HeroIntroGraphic` sobrepunha o botão "QUERO SABER MAIS"
+em algumas telas.
+
+**Causa raiz**: `.copy` (headline/subhead/CTA) e o gráfico eram posicionados
+cada um por conta própria, sem relação um com o outro — `.copy` em
+`position: absolute; top: clamp(7.5rem, 17vh, 11rem)` (cresce pouco com a
+altura da viewport) e o gráfico em `top: 68%` do container (encolhe
+proporcionalmente à altura). Numa viewport baixa e larga, os dois convergem.
+Medido antes do fix: em 918×650, o gráfico ficava **58px acima do fim do
+botão** — sobreposição real, não só visual.
+
+**Fix**: `.sticky` virou um flex column (`display:flex; flex-direction:column;
+align-items:center; justify-content:center; gap:...`), com `.copy` e o
+gráfico como filhos NORMAIS do fluxo — não mais `position: absolute`
+independentes. Em fluxo normal, o segundo elemento nasce depois do fim real
+do primeiro, seja qual for a altura do conteúdo — sobreposição deixa de ser
+possível por construção, não só ajustada numericamente para os casos testados.
+
+O `HeroIntroGraphic` não decide mais seu próprio tamanho/posição: o pai
+(`PayconHero`) reserva a caixa (`.graphicSlot`, com o `width`/`aspect-ratio`
+que antes viviam em `.wrap`) e o componente só preenche essa caixa
+(`.wrap { position: absolute; inset: 0; }`) — o `translate(-50%, -50%)` que
+centralizava um PONTO saiu do `transform` inline, porque agora não há ponto
+para centralizar, só uma caixa para preencher.
+
+Medido depois do fix, nos mesmos 918×650 onde havia sobreposição: **+39px**
+de folga (era −58px). Testado até um extremo de 918×500: ainda **+32px**,
+com `.sticky` crescendo via `min-height` (não corta nada) e zero overflow
+horizontal. Desktop e mobile 360px inalterados visualmente.
+
 ## Ordem das seções igual à do site oficial (rodada 13)
 
 A pedido ("mas quero nas mesmas posições que o do site"), a ORDEM das seções

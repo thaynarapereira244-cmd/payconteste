@@ -5,18 +5,21 @@
   rótulos: paleta azul/cinza da Paycon (não o verde da referência), sem texto
   ou número inventado — só a composição visual.
 
-  Ocupa o mesmo lugar que a nuvem de partículas ocupava em repouso; ao rolar,
-  `PayconHero` desvanece este bloco enquanto as partículas assumem (ver
-  `onProgress` em PayconHero.tsx).
+  É todo o visual de repouso da hero (a nuvem de partículas foi removida).
 */
 .wrap {
+  /*
+   * PREENCHE o `.graphicSlot` do pai (`inset: 0`) — não se posiciona por
+   * conta própria. Antes tinha seu próprio `top: 68%`, independente de onde
+   * a copy (headline/CTA) realmente terminava; em viewports baixos os dois
+   * colidiam (medido: gráfico 58px acima do fim do botão, se sobrepondo).
+   * Agora o tamanho/posição vêm inteiramente do pai, em fluxo normal — nunca
+   * pode sobrepor algo que vem antes dele no documento.
+   */
   position: absolute;
-  left: 50%;
-  top: 68%;
-  /* transform (centralização + tilt de cursor) é aplicado inline no
-     componente, porque `--tilt-x/--tilt-y` são escritos ali a cada frame */
-  width: min(26rem, 80vw);
-  aspect-ratio: 4 / 3;
+  inset: 0;
+  /* transform (só o tilt de cursor agora) é aplicado inline no componente,
+     porque `--tilt-x/--tilt-y` são escritos ali a cada frame */
   pointer-events: none;
   will-change: opacity, transform;
 }
@@ -113,11 +116,6 @@
 }
 
 @media (max-width: 900px) {
-  .wrap {
-    top: 66%;
-    width: min(20rem, 84vw);
-  }
-
   .hubInner {
     width: 3.7rem;
     height: 3.7rem;
