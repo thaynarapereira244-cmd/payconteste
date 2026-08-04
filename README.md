@@ -560,6 +560,55 @@ chamava `ScrollTrigger.getAll().forEach(t => t.kill())`, matando triggers de
 componentes-filho. Corrigido para matar apenas o `ScrollSmoother` que o próprio
 `App` criou.
 
+## Princípios da Soluções P2P na estrutura real do site (rodada 15)
+
+Relatado com print: no mobile, o bloco dos 4 princípios ("DNA Jurídico...",
+"P2P: De Pessoa para Pessoa...", etc.) aparecia empilhado DEPOIS dos cards de
+solução, como se fosse um apêndice — porque vivia na coluna lateral (`.side`,
+ao lado da pilha de cards no desktop), que no mobile só empilha por baixo.
+Pedido explícito: **"Segue exatamente na mesma estrutura que está na página
+que te forneço... mudando apenas a estética."**
+
+Inspecionei o HTML real do site oficial para essa seção (não só o texto — a
+MARCAÇÃO):
+
+```html
+<h2>Soluções P2P: <span>Tecnologia de Pessoa para Pessoa</span></h2>
+<p><!-- só o título do 1º princípio, em destaque --></p>
+<div>
+  <span><!-- descrição do 1º princípio, sem título repetido --></span>
+  <span><strong>P2P: De Pessoa para Pessoa:</strong> Acreditamos em...</span>
+  <span><strong>Tecnologia de Advogados para Advogados:</strong> Conhecemos...</span>
+  <span><strong>Eficiência Dentro de Casa:</strong> Tudo é construído...</span>
+</div>
+```
+
+Ou seja: é UM bloco de intro (título → frase-título do 1º princípio em
+destaque → parágrafo com os outros 3, cada um com o título embutido em
+negrito na própria linha) — não 4 cartões título+descrição separados, e não
+numa coluna à parte dos cards de solução.
+
+Reproduzi essa estrutura em `SolutionsScene.tsx`: o array `solutionsIntro.
+principles` (inalterado no conteúdo) agora é desestruturado em
+`[leadPrinciple, ...restPrinciples]`; `leadPrinciple.title` renderiza como
+frase-título isolada (`.introLead`), `leadPrinciple.description` abre o
+parágrafo sem repetir o título, e cada item de `restPrinciples` renderiza como
+`<p><strong>{title}:</strong> {description}</p>`. Tudo dentro de `.intro` — a
+faixa que já ficava ANTES dos cards, tanto no fluxo mobile quanto no desktop
+pinado. `.side` manteve só o índice numerado de navegação dos cards (que não
+existe no site oficial — é uma UI própria para o carrossel 3D, não conteúdo a
+sincronizar).
+
+**Risco verificado**: `.intro` é uma faixa `auto` dentro de um grid PINADO em
+altura fixa (100vh) no desktop — o mesmo tipo de armadilha do bug da hero
+(rodada 14). Tipografia da faixa nova ficou compacta de propósito
+(`0.78rem`) e testei a folga real entre `.intro` e a pilha de cards em 4
+larguras: 1024×768 → **46px**; 1366×768 → **28px**; 1440×900 → **54px**;
+1920×1080 → **65px**. Nenhuma sobreposição; zero overflow horizontal em
+todas. No mobile (fluxo normal, sem pin), a estrutura fica idêntica à do site
+oficial e o corte relatado desaparece por construção — o bloco não mora mais
+onde cortava.
+
 ## Bug: gráfico sobrepondo o botão da hero (rodada 14)
 
 Relatado com print: o `HeroIntroGraphic` sobrepunha o botão "QUERO SABER MAIS"

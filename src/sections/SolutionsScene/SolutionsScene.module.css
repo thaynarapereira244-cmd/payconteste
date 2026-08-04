@@ -45,7 +45,7 @@
 .intro {
   grid-row: 1;
   padding-inline: clamp(1.5rem, 6vw, 7rem);
-  max-width: 46rem;
+  max-width: 50rem;
   display: flex;
   flex-direction: column;
   gap: 0.6rem;
@@ -57,6 +57,37 @@
   font-weight: 520;
   letter-spacing: -0.025em;
   line-height: 1.14;
+}
+
+/*
+  Frase-título do 1º princípio (destacada, mesma posição que no site oficial —
+  ali vem antes do parágrafo, não misturada com ele) + o bloco de parágrafo dos
+  outros 3 princípios, com o título embutido em negrito na própria linha.
+  Tipografia compacta de propósito: esta faixa é PINADA em altura fixa no
+  desktop (a pilha 3D de cards precisa do resto do espaço) — ver `.sticky`.
+*/
+.introLead {
+  font-size: clamp(0.82rem, 1vw, 0.95rem);
+  font-weight: 650;
+  color: var(--paycon-text);
+  margin-top: 0.15rem;
+}
+
+.introPrinciples {
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+}
+
+.introPrinciples p {
+  font-size: 0.78rem;
+  line-height: 1.48;
+  color: var(--paycon-muted);
+}
+
+.introPrinciples strong {
+  color: var(--paycon-blue-200);
+  font-weight: 650;
 }
 
 /* Pilha 3D de cards, ancorada à esquerda/centro */
@@ -185,26 +216,6 @@
 
 .index li[data-active="true"] span {
   color: var(--paycon-blue-300);
-}
-
-.principles {
-  display: flex;
-  flex-direction: column;
-  gap: 1.1rem;
-}
-
-.principles h4 {
-  font-size: 0.76rem;
-  font-weight: 650;
-  color: var(--paycon-blue-200);
-  margin-bottom: 0.25rem;
-  letter-spacing: 0.01em;
-}
-
-.principles p {
-  font-size: 0.76rem;
-  color: var(--paycon-muted);
-  line-height: 1.5;
 }
 
 .hint {

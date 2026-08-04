@@ -19,6 +19,9 @@ const CARD_IDS = ["contratos", "contencioso", "esocialpro", "controladoria", "so
 export function SolutionsScene() {
   const { solutionsIntro, solutions } = payconLandingContent;
   const cards = CARD_IDS.map((id) => solutions.find((s) => s.id === id)!);
+  // 1º princípio é a "frase-título" em destaque (mesma estrutura do site
+  // oficial); os demais têm o título embutido em negrito no próprio parágrafo.
+  const [leadPrinciple, ...restPrinciples] = solutionsIntro.principles;
 
   const sectionRef = useRef<HTMLElement | null>(null);
   const stickyRef = useRef<HTMLDivElement | null>(null);
@@ -112,12 +115,26 @@ export function SolutionsScene() {
   return (
     <section ref={sectionRef} className={styles.section} aria-labelledby="solutions-heading">
       <div ref={stickyRef} className={styles.sticky}>
-        {/* intro editorial: fica no canto superior, não centralizada */}
+        {/*
+          Intro editorial no topo — MESMA estrutura do site oficial (só a
+          estética muda): título, depois a frase-título do 1º princípio em
+          destaque, depois um bloco de parágrafo com os outros 3 princípios,
+          cada um com o título embutido em negrito na própria linha.
+        */}
         <div ref={introRef} className={styles.intro}>
           <span className="eyebrow">{solutionsIntro.label}</span>
           <h2 id="solutions-heading" className={styles.introTitle}>
             {solutionsIntro.title}
           </h2>
+          <p className={styles.introLead}>{leadPrinciple.title}</p>
+          <div className={styles.introPrinciples}>
+            <p>{leadPrinciple.description}</p>
+            {restPrinciples.map((principle) => (
+              <p key={principle.title}>
+                <strong>{principle.title}:</strong> {principle.description}
+              </p>
+            ))}
+          </div>
         </div>
 
         <div ref={stackRef} className={styles.stack}>
@@ -145,7 +162,7 @@ export function SolutionsScene() {
           ))}
         </div>
 
-        {/* índice à direita — a copy dos princípios P2P vive aqui, lateralizada */}
+        {/* índice à direita — navegação dos cards */}
         <div className={styles.side}>
           <ol className={styles.index}>
             {cards.map((card, i) => (
@@ -155,15 +172,6 @@ export function SolutionsScene() {
               </li>
             ))}
           </ol>
-
-          <div className={styles.principles}>
-            {solutionsIntro.principles.map((p) => (
-              <div key={p.title}>
-                <h4>{p.title}</h4>
-                <p>{p.description}</p>
-              </div>
-            ))}
-          </div>
         </div>
 
         {reducedMotion ? null : <div className={styles.hint} aria-hidden="true">ROLE PARA PERCORRER</div>}
