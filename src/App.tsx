@@ -6,6 +6,7 @@ import { PageFooter } from "./components/PageFooter/PageFooter";
 import { PayconHero } from "./sections/PayconHero/PayconHero";
 import { AnalysisScene } from "./sections/AnalysisScene/AnalysisScene";
 import { SolutionsScene } from "./sections/SolutionsScene/SolutionsScene";
+import { ContactFormScene } from "./sections/ContactFormScene/ContactFormScene";
 import { TechnologyScene } from "./sections/TechnologyScene/TechnologyScene";
 import { PartnersScene } from "./sections/PartnersScene/PartnersScene";
 import { TestimonialsScene } from "./sections/TestimonialsScene/TestimonialsScene";
@@ -63,12 +64,20 @@ function App() {
 
       <div id="smooth-wrapper">
         <div id="smooth-content">
+          {/*
+            Ordem das seções alinhada à do site oficial: hero → soluções →
+            formulário → clientes → diferenciais → depoimentos → método →
+            sobre → CTA final. Antes o formulário ficava no fim (junto do CTA)
+            e Diferenciais vinha antes de Clientes — invertido em relação ao
+            site.
+          */}
           <main id="main-content">
             <PayconHero />
             <AnalysisScene />
             <SolutionsScene />
-            <TechnologyScene />
+            <ContactFormScene />
             <PartnersScene />
+            <TechnologyScene />
             <TestimonialsScene />
             <MethodScene />
             <AboutScene />

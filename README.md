@@ -560,6 +560,41 @@ chamava `ScrollTrigger.getAll().forEach(t => t.kill())`, matando triggers de
 componentes-filho. Corrigido para matar apenas o `ScrollSmoother` que o próprio
 `App` criou.
 
+## Ordem das seções igual à do site oficial (rodada 13)
+
+A pedido ("mas quero nas mesmas posições que o do site"), a ORDEM das seções
+passou a seguir exatamente a do site oficial. Antes o rebuild tinha duas
+inversões em relação à fonte:
+
+- **O formulário ficava no fim da página**, junto do CTA final. No site
+  oficial ele vem logo depois dos cards de soluções, bem mais cedo.
+- **Diferenciais vinha antes de Clientes.** No site oficial é o contrário:
+  Clientes vem primeiro.
+
+Ordem antiga: Hero → Soluções → Diferenciais → Clientes → Depoimentos →
+Método → Sobre → CTA final + Formulário.
+
+Ordem nova (= site oficial): Hero → Soluções → **Formulário** → **Clientes**
+→ **Diferenciais** → Depoimentos → Método → Sobre → CTA final.
+
+**Implementação**: `FinalContactScene` renderizava duas `<section>` no mesmo
+componente (`#fale-conosco` com o CTA+PAYCON, e `#contato` com o formulário).
+Extraí o formulário para um componente novo, `ContactFormScene`, para poder
+posicioná-lo separadamente do CTA em `App.tsx`. O CSS do formulário
+(`.formSection`/`.formGrid`/`.formIntro`/`.formTitle`/`.formRule`/`.formCard`)
+foi junto, para `ContactFormScene.module.css`; `FinalContactScene.module.css`
+manteve só as regras do CTA. `PartnersScene` e `TechnologyScene` só trocaram
+de posição relativa em `App.tsx` — nenhum dos dois precisou de mudança
+interna (os alvos das partículas em cada fase — `mosaic`/`network` — são
+independentes entre si, funções puras do progresso local da própria cena, sem
+dependência da ordem de montagem).
+
+Verificado: ordem do DOM em runtime bate exatamente com a do site
+(`home → solucoes → [cards] → contato → clientes → diferenciais →
+depoimentos → metodo → sobre → fale-conosco`); só 1 `<form>` na página inteira
+(sem duplicação); CTA final e formação do PAYCON continuam intactos na nova
+posição do formulário.
+
 ## Segunda varredura de fidelidade de copy (rodada 12)
 
 A pedido ("preciso que contenha a mesma copy... sem retirar nada"), refiz a
