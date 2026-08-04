@@ -560,6 +560,44 @@ chamava `ScrollTrigger.getAll().forEach(t => t.kill())`, matando triggers de
 componentes-filho. Corrigido para matar apenas o `ScrollSmoother` que o próprio
 `App` criou.
 
+## Hero sem morph de partículas (rodada 11)
+
+A pedido, o scroll da hero não forma mais nuvem, núcleo nem o wordmark PAYCON.
+O visual da hero passou a ser só o `HeroIntroGraphic` (cards conectados) — sem
+pin, sem coreografia, sem sequência pra reverter. É uma seção normal, do
+tamanho do seu próprio conteúdo.
+
+O que mudou:
+
+- **`PayconHero.tsx` reescrito**: removidos o pin (`pinRef`, o `end:
+  +=innerHeight*3`), as 6 fases da coreografia antiga e o `onProgress` que
+  desvanecia copy/gráfico por progresso de scroll. Restou uma única faixa
+  (`{ phase: "hero-cloud", opacity: [0, 0] }`) que só existe para manter o
+  palco de partículas **invisível** enquanto a hero está em foco — as cenas
+  seguintes (scanner, cards, mosaico, rede de parceiros, PAYCON do CTA final)
+  continuam dependendo do mesmo palco persistente, então ele não podia
+  simplesmente ser removido da árvore.
+- **`.sticky` deixou de ter `height: 100vh; overflow: hidden`** (que existia
+  para conter o quadro PINADO exatamente na viewport) e passou a
+  `min-height: 100vh` — sem pin, um `overflow:hidden` teria cortado a
+  composição num viewport baixo/estreito.
+- **`HeroIntroGraphic` simplificado**: não precisa mais de `forwardRef` (nada
+  externo controla sua opacidade agora — ela nunca precisa desvanecer).
+- **Limpeza de código morto em `choreography.ts`/`stageState.ts`**: as fases
+  `hero-gather`, `hero-condense`, `hero-core`, `hero-wordmark` e `hero-release`
+  (e os helpers só usados por elas — `HERO_LOGO_SX`, `HERO_LOGO_VH`,
+  `heroLogoY()`) nunca mais são atingidas por nenhum componente, então foram
+  removidas do `switch` e do tipo `StagePhase`. Confirmado por grep antes de
+  remover que nada mais referenciava essas fases. O CTA final usa constantes
+  próprias (`FINAL_LOGO_SX`/`FINAL_LOGO_VH`/`finalLogoY()`), então **a formação
+  do PAYCON no CTA final não foi tocada** — verificado depois da limpeza:
+  `logoReady: true`, 2500 partículas formadas normalmente.
+
+Medido: com o palco em `stageOpacity: 0` durante toda a altura da hero
+(694px), zero pixels de partícula visíveis; ao passar da hero, a fase muda
+para `scanner` (da `AnalysisScene`) sem vão nem disputa pelo palco. Bundle JS
+caiu ~1 kB gzip refletindo a remoção do código morto.
+
 ## Ressincronização de copy com o site oficial (rodada 10)
 
 O site fonte (`lp.payconautomacoes.com.br`) mudou desde a captura original de

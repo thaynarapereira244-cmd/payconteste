@@ -3,10 +3,11 @@
   min-height: 100vh;
 }
 
+/* Sem pin: `min-height` (não `height` fixo) para não cortar conteúdo caso a
+   composição precise de mais espaço do que 100vh num viewport baixo/estreito. */
 .sticky {
   position: relative;
-  height: 100vh;
-  overflow: hidden;
+  min-height: 100vh;
 }
 
 /*

@@ -1,4 +1,4 @@
-import { forwardRef, useLayoutEffect } from "react";
+import { useLayoutEffect } from "react";
 import { CheckCircle2, Check, FileText, Link2, Workflow } from "lucide-react";
 import { useReducedMotion } from "../../hooks/useReducedMotion";
 import { useTilt } from "../../hooks/useParallax";
@@ -19,9 +19,9 @@ import styles from "./HeroIntroGraphic.module.css";
  * integração (`sistema que você já usa`), conclusão (`um clique`), com o
  * hub de automação no centro.
  *
- * Substitui a nuvem de partículas apenas no estado de REPOUSO da hero — ao
- * rolar, `PayconHero` desvanece este bloco e as partículas assumem a
- * narrativa (ver `onProgress` em PayconHero.tsx).
+ * É todo o visual da hero — a pedido, o scroll não forma mais nuvem, núcleo
+ * nem o wordmark PAYCON aqui (isso ficava em `PayconHero.tsx`/`choreography.ts`,
+ * removido). Sem fade, sem ref externa: o componente só cuida de si mesmo.
  */
 
 type Node = { id: string; x: number; y: number };
@@ -40,16 +40,7 @@ const BADGE: Node = { id: "badge", x: 292, y: 54 };
 
 const pct = (v: number, total: number) => `${((v / total) * 100).toFixed(2)}%`;
 
-/**
- * Encaminha a ref para o elemento raiz — `PayconHero` precisa dele para
- * escrever `opacity` diretamente durante o scroll (mesmo padrão já usado em
- * `copyRef`), sem criar um wrapper div extra. Um wrapper teria seu próprio
- * `transform`/`opacity` aplicados via JS, o que criaria um novo bloco de
- * contenção para o `.wrap` (que é `position: absolute`) e quebraria o
- * posicionamento — por isso a ref aponta para o PRÓPRIO elemento com o
- * `position: absolute`, não para um pai.
- */
-export const HeroIntroGraphic = forwardRef<HTMLDivElement>(function HeroIntroGraphic(_props, forwardedRef) {
+export function HeroIntroGraphic() {
   const reducedMotion = useReducedMotion();
   // inclinação sutil de cursor (camada 3, mesmo rAF do palco) — nada de giro
   // global; é o mesmo hook já usado na rede de parceiros (`useTilt(4, 0.05)`).
@@ -90,30 +81,20 @@ export const HeroIntroGraphic = forwardRef<HTMLDivElement>(function HeroIntroGra
 
   return (
     <div
-      ref={(el) => {
-        tiltRef.current = el;
-        if (typeof forwardedRef === "function") forwardedRef(el);
-        else if (forwardedRef) forwardedRef.current = el;
-      }}
+      ref={tiltRef}
       className={styles.wrap}
       aria-hidden="true"
       style={{ transform: "translate(-50%, -50%) perspective(900px) rotateX(var(--tilt-x, 0deg)) rotateY(var(--tilt-y, 0deg))" }}
     >
       <svg className={styles.lines} viewBox={`0 0 ${SPACE.w} ${SPACE.h}`}>
         {SATELLITES.map((s) => (
-          <path
-            key={s.id}
-            d={`M${HUB.x},${HUB.y} L${s.x},${s.y}`}
-          />
+          <path key={s.id} d={`M${HUB.x},${HUB.y} L${s.x},${s.y}`} />
         ))}
         <path d={`M${HUB.x},${HUB.y} L${BADGE.x},${BADGE.y}`} />
         <circle cx={HUB.x} cy={HUB.y} r={3.2} />
       </svg>
 
-      <div
-        className={styles.hub}
-        style={{ left: pct(HUB.x, SPACE.w), top: pct(HUB.y, SPACE.h) }}
-      >
+      <div className={styles.hub} style={{ left: pct(HUB.x, SPACE.w), top: pct(HUB.y, SPACE.h) }}>
         <div className={styles.hubInner}>
           <Workflow size={26} strokeWidth={1.6} aria-hidden="true" />
         </div>
@@ -134,4 +115,4 @@ export const HeroIntroGraphic = forwardRef<HTMLDivElement>(function HeroIntroGra
       </div>
     </div>
   );
-});
+}

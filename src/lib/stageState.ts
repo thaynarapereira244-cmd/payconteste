@@ -7,12 +7,9 @@
  */
 
 export type StagePhase =
+  // fase da hero: mantida só como estado inerte (opacidade 0) — o scroll não
+  // forma mais nuvem/núcleo/wordmark ali, a pedido; ver PayconHero.tsx
   | "hero-cloud"
-  | "hero-gather"
-  | "hero-condense"
-  | "hero-core"
-  | "hero-wordmark"
-  | "hero-release"
   | "scanner"
   | "cards"
   | "mosaic"
