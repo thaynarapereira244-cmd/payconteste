@@ -14,7 +14,7 @@ const COLUMNS = 6;
  * ordem, com alt text e sem filtro que descaracterize a marca.
  */
 export function PartnersScene() {
-  const { partners, about } = payconLandingContent;
+  const { partners, partnersIntro } = payconLandingContent;
   const sectionRef = useRef<HTMLElement | null>(null);
   const cellRefs = useRef<Array<HTMLLIElement | null>>([]);
   const linesRef = useRef<SVGSVGElement | null>(null);
@@ -99,10 +99,11 @@ export function PartnersScene() {
         {/* copy lateralizada, com o título em escala editorial */}
         <div className={styles.copy}>
           <span className="eyebrow">Clientes</span>
-          {/* copy oficial da página, sem alteração — apenas em escala maior */}
+          {/* título/subtítulo dedicados da seção (H2 + parágrafo no site oficial) */}
           <h2 id="partners-heading" className={styles.title}>
-            {about.growthMetric}
+            {partnersIntro.title}
           </h2>
+          <p className={styles.subtitle}>{partnersIntro.subtitle}</p>
         </div>
 
         <div ref={netRef} className={styles.network}>

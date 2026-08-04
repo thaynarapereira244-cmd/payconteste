@@ -36,6 +36,13 @@
   max-width: 32rem;
 }
 
+.subtitle {
+  font-size: clamp(0.9rem, 1.05vw, 1.05rem);
+  color: var(--paycon-muted);
+  line-height: 1.6;
+  max-width: 30rem;
+}
+
 .network {
   position: relative;
   perspective: 1000px;

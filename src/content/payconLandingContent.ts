@@ -142,14 +142,14 @@ export const payconLandingContent = {
       title: "Insights: Inteligência para Baixa de Provisão",
       description:
         "Com o serviço de Insights, identificamos oportunidades reais para baixa de provisão diretamente no seu banco de dados. Através de uma análise técnica e precisa, garantimos que o seu balanço jurídico reflita a realidade, eliminando distorções financeiras.",
-      highlight: "15 a 25% da base atual de processos costuma ser encerrada na primeira rodagem",
+      highlight: "15 a 25% da base atual de processos costuma ser encerrada na primeira rodagem.",
       cta: { label: "SOLICITAR DEMONSTRAÇÃO", placement: "solutions" },
     },
     {
       id: "baixa-de-provisao",
       title: "Baixa de provisão",
       description:
-        "Identificamos casos para baixa de provisão e acuracidade no seu resultado.",
+        "Identificamos casos para baixa de provisão e acuracidade no seu resultado",
     },
     {
       id: "dados-qualificados",
@@ -411,24 +411,35 @@ export const payconLandingContent = {
       id: "ivan-rocha",
       name: "Ivan Rocha",
       role: "Sócio Administrador",
-      bio: "Advogado, consultor, auditor. Experiência com consultivo e contencioso trabalhista. Especialista em Design Thinking de sistemas jurídicos",
+      bio: "Advogado, consultor, auditor. Experiência com consultivo e contencioso trabalhista. Especialista em Design Thinking de sistemas jurídicos.",
       photo: "/assets/team/team-ivan-rocha.webp",
     },
     {
       id: "thiago-palma",
       name: "Thiago Palma",
       role: "Sócio Administrador",
-      bio: "Advogado, especialista em automação de tarefas e gestão de projetos",
+      bio: "Advogado, especialista em automação de tarefas e gestão de projetos.",
       photo: "/assets/team/team-thiago-palma.webp",
     },
     {
       id: "thiago-teles",
       name: "Thiago Teles",
       role: "Sócio",
-      bio: "Advogado programador, responsável pela gestão das rotinas e planejamento de projetos contínuos",
+      bio: "Advogado programador, responsável pela gestão das rotinas e planejamento de projetos contínuos.",
       photo: "/assets/team/team-thiago-teles.webp",
     },
   ] satisfies TeamMember[],
+
+  /**
+   * Título/subtítulo dedicados da seção de clientes — existem no site oficial
+   * como H2 + parágrafo próprios daquela seção. Antes, `PartnersScene`
+   * reaproveitava a frase de `about.growthMetric` como título (conteúdo real,
+   * mas do bloco "Sobre a PAYCON", não desta seção).
+   */
+  partnersIntro: {
+    title: "+ de 40 empresas confiaram na Paycon para automatizar suas tarefas",
+    subtitle: "Junte-se a nós e torne seu operacional mais fácil, eficiente e prazeroso.",
+  },
 
   partners: [
     { id: "carrefour", name: "Carrefour", logo: "/assets/partners/partner-carrefour.webp" },
@@ -517,7 +528,7 @@ export const payconLandingContent = {
 
   footer: {
     title: "Automações Jurídicas",
-    tagline: "Transformando a prática jurídica com automações inteligentes e inteligência artificial",
+    tagline: "Transformando a prática jurídica com automações inteligentes e inteligência artificial.",
     quickLinks: [
       { href: "#solucoes", label: "Soluções" },
       { href: "#diferenciais", label: "Diferenciais" },
@@ -529,7 +540,7 @@ export const payconLandingContent = {
       phone: "(11) 3675-7990",
       location: "São Paulo, SP - Brasil",
     },
-    copyright: "© 2026 Automações Jurídicas. Todos os direitos reservados",
+    copyright: "© 2026 Automações Jurídicas. Todos os direitos reservados.",
   },
 
   analytics: {

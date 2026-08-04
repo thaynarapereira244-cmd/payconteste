@@ -560,6 +560,34 @@ chamava `ScrollTrigger.getAll().forEach(t => t.kill())`, matando triggers de
 componentes-filho. Corrigido para matar apenas o `ScrollSmoother` que o próprio
 `App` criou.
 
+## Segunda varredura de fidelidade de copy (rodada 12)
+
+A pedido ("preciso que contenha a mesma copy... sem retirar nada"), refiz a
+comparação campo a campo contra o site ao vivo, desta vez lendo `textContent`
+direto do DOM (não a extração em texto corrido, que **omite pontuação final**
+em alguns casos — foi assim que passaram batido na rodada 10).
+
+**Título/subtítulo da seção de Clientes estavam faltando por completo.** O
+site oficial tem um H2 + parágrafo dedicados aquela seção
+("+ de 40 empresas confiaram na Paycon para automatizar suas tarefas" / "Junte-se
+a nós e torne seu operacional mais fácil, eficiente e prazeroso."), separados do
+parágrafo de `about.growthMetric` — mas `PartnersScene` reaproveitava a frase do
+"Sobre a PAYCON" como se fosse o título de Clientes. Adicionado
+`partnersIntro: { title, subtitle }` ao conteúdo e `PartnersScene.tsx` passou a
+usar o campo certo.
+
+**Pontuação final divergente em 5 lugares** (confirmado via `element.textContent`
+no DOM ao vivo, não a extração de texto corrido):
+- `solutions.insights.highlight` — faltava o ponto final.
+- `solutions.baixa-de-provisao.description` — tinha um ponto que o site não tem.
+- Os 3 bios de sócios (`team[].bio`) — faltava o ponto final em todos.
+- `footer.tagline` e `footer.copyright` — faltava o ponto final nos dois.
+
+Reverificado shell-a-shell contra o DOM ao vivo: hero, métricas, os 4
+princípios da Soluções P2P, as 8 descrições de soluções, diferenciais, os 13
+depoimentos, os 3 passos do método, os 5 parágrafos de "Sobre a PAYCON", CTA
+final e formulário — todos batem exatamente, sem mais divergências encontradas.
+
 ## Hero sem morph de partículas (rodada 11)
 
 A pedido, o scroll da hero não forma mais nuvem, núcleo nem o wordmark PAYCON.
