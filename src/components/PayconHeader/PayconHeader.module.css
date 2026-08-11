@@ -1,0 +1,150 @@
+/* Sem moldura global: o header usa a largura inteira da viewport. */
+.header {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 100;
+  display: flex;
+  flex-direction: column;
+  background: transparent;
+  transition: background var(--duration-fast) var(--ease-standard);
+}
+
+.headerScrolled {
+  background: rgba(2, 3, 5, 0.7);
+  backdrop-filter: blur(14px);
+}
+
+.inner {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: center;
+  gap: 1rem;
+  padding: clamp(1rem, 1.8vh, 1.5rem) clamp(1.25rem, 3vw, 2.5rem);
+}
+
+.logoLink {
+  display: flex;
+  align-items: center;
+  justify-self: start;
+}
+
+/* Navegação compacta dentro de uma pill discreta — não uma barra de menu */
+.navPill {
+  display: none;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.3rem;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.045);
+  backdrop-filter: blur(10px);
+}
+
+.navPill a {
+  padding: 0.42rem 0.85rem;
+  border-radius: 999px;
+  font-size: 0.72rem;
+  font-weight: 500;
+  letter-spacing: 0.01em;
+  color: var(--paycon-muted-strong);
+  white-space: nowrap;
+  transition: color var(--duration-fast) var(--ease-standard),
+    background var(--duration-fast) var(--ease-standard);
+}
+
+.navPill a:hover {
+  color: var(--paycon-white);
+  background: rgba(255, 255, 255, 0.07);
+}
+
+.navActive {
+  color: var(--paycon-white) !important;
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.navPill a:focus-visible {
+  outline: 2px solid var(--paycon-blue-300);
+  outline-offset: 2px;
+}
+
+.actions {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  justify-self: end;
+}
+
+/* CTA em pill de alto contraste, como na referência */
+.ctaPill {
+  display: none;
+  align-items: center;
+  gap: 0.45rem;
+  min-height: 38px;
+  padding: 0 1.1rem;
+  border-radius: 999px;
+  background: var(--paycon-off-white);
+  color: #0a0d1f;
+  font-size: 0.7rem;
+  font-weight: 650;
+  letter-spacing: 0.02em;
+  white-space: nowrap;
+  transition: background var(--duration-fast) var(--ease-standard),
+    transform var(--duration-fast) var(--ease-standard);
+}
+
+.ctaPill:hover {
+  background: #ffffff;
+  transform: translateY(-1px);
+}
+
+.ctaPill:focus-visible {
+  outline: 2px solid var(--paycon-blue-300);
+  outline-offset: 3px;
+}
+
+.menuToggle {
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: var(--paycon-text);
+}
+
+.menuToggle:focus-visible {
+  outline: 2px solid var(--paycon-blue-300);
+  outline-offset: 2px;
+}
+
+.mobileNav {
+  display: flex;
+  flex-direction: column;
+  gap: 1.1rem;
+  padding: 1.25rem clamp(1.25rem, 3vw, 2.5rem) 2rem;
+  border-top: 1px solid var(--paycon-line);
+  background: rgba(2, 3, 5, 0.95);
+  backdrop-filter: blur(14px);
+  max-height: calc(100vh - 5rem);
+  overflow-y: auto;
+}
+
+.mobileNav a {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--paycon-text);
+  padding: 0.35rem 0;
+}
+
+@media (min-width: 900px) {
+  .navPill,
+  .ctaPill {
+    display: inline-flex;
+  }
+
+  .menuToggle {
+    display: none;
+  }
+}

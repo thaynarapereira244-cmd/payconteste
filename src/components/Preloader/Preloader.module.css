@@ -1,0 +1,54 @@
+.overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 500;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1.5rem;
+  background: var(--paycon-black);
+  transition: opacity 0.55s var(--ease-standard);
+}
+
+.dissolving {
+  opacity: 0;
+}
+
+.dots {
+  display: flex;
+  gap: 0.4rem;
+}
+
+.dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--paycon-blue-300);
+  opacity: 0.2;
+  animation: pulse 0.9s ease-in-out infinite;
+}
+
+.logo {
+  opacity: 0;
+  animation: reveal 0.5s var(--ease-standard) forwards;
+  animation-delay: 0.5s;
+}
+
+@keyframes pulse {
+  0%,
+  100% {
+    opacity: 0.2;
+    transform: scale(0.85);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.15);
+  }
+}
+
+@keyframes reveal {
+  to {
+    opacity: 1;
+  }
+}

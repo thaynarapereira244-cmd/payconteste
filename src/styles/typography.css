@@ -1,0 +1,67 @@
+body {
+  font-family: var(--font-body);
+  font-size: var(--fs-body-md);
+  color: var(--paycon-text);
+  background: var(--paycon-black);
+}
+
+h1,
+h2,
+h3,
+h4 {
+  font-family: var(--font-display);
+  font-weight: 560;
+  letter-spacing: var(--tracking-tight);
+  line-height: var(--lh-tight);
+  color: var(--paycon-text);
+}
+
+.text-display-xl {
+  font-size: var(--fs-display-xl);
+  letter-spacing: var(--tracking-tighter);
+  line-height: var(--lh-tight);
+  font-weight: 540;
+}
+
+.text-display-lg {
+  font-size: var(--fs-display-lg);
+  letter-spacing: var(--tracking-tight);
+  font-weight: 540;
+}
+
+.text-display-md {
+  font-size: var(--fs-display-md);
+  font-weight: 550;
+}
+
+.text-display-sm {
+  font-size: var(--fs-display-sm);
+  font-weight: 560;
+}
+
+.text-body-lg {
+  font-size: var(--fs-body-lg);
+  color: var(--paycon-muted-strong);
+  line-height: var(--lh-normal);
+}
+
+.text-body {
+  font-size: var(--fs-body-md);
+  color: var(--paycon-muted-strong);
+}
+
+.text-muted {
+  color: var(--paycon-muted);
+}
+
+.text-label {
+  font-size: var(--fs-label);
+  letter-spacing: var(--tracking-wide);
+  text-transform: uppercase;
+  color: var(--paycon-muted);
+  font-weight: 600;
+}
+
+.text-accent {
+  color: var(--paycon-blue-300);
+}

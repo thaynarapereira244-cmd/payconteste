@@ -1,0 +1,287 @@
+.section {
+  position: relative;
+}
+
+.sticky {
+  position: relative;
+  /* altura exata da viewport: é um elemento pinado, não pode transbordar */
+  height: 100vh;
+  overflow: hidden;
+  /*
+    Flex em vez de grid: com uma única "linha" de conteúdo (o título
+    "Soluções P2P" saiu daqui, virou a seção `SolutionsIntroScene`), um grid
+    sem `grid-template-columns` empilha `.stack`/`.side` em linhas verticais
+    separadas por padrão (auto-flow:row) em vez de colocá-los lado a lado —
+    foi o que aconteceu depois da remoção do intro. Flex row resolve direto.
+  */
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: clamp(88px, 11vh, 160px) 0 clamp(1.25rem, 3vh, 2rem);
+  box-sizing: border-box;
+  /* atmosfera limpa, sem campo de partículas atrás do texto */
+  background:
+    radial-gradient(60rem 40rem at 78% 40%, rgba(34, 38, 90, 0.22), transparent 70%),
+    linear-gradient(180deg, transparent, rgba(7, 9, 14, 0.55) 40%, transparent);
+}
+
+/* grid técnico discreto no lugar das bolinhas */
+.sticky::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background-image:
+    linear-gradient(to right, rgba(255, 255, 255, 0.028) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(255, 255, 255, 0.028) 1px, transparent 1px);
+  background-size: 88px 88px;
+  mask-image: radial-gradient(70% 60% at 60% 50%, black, transparent 78%);
+}
+
+/* Pilha 3D de cards, ancorada à esquerda/centro */
+.stack {
+  position: relative;
+  margin-left: clamp(1.5rem, 8vw, 10rem);
+  width: min(44rem, 52vw);
+  height: 100%;
+  /* teto alto o suficiente pra nunca ser o fator limitante — quem decide a
+     altura real é o espaço que sobra na grade (`minmax(0,1fr)` de `.sticky`);
+     este valor só evita que a pilha cresça sem limite em telas muito altas. */
+  max-height: 40rem;
+  transform: perspective(1500px) rotateY(var(--tilt-y, 0deg)) rotateX(var(--tilt-x, 0deg));
+  transform-style: preserve-3d;
+}
+
+.card {
+  position: absolute;
+  inset: 0;
+  transform-style: preserve-3d;
+  will-change: transform, opacity, filter;
+  border: 1px solid var(--paycon-line-strong);
+  border-radius: 18px;
+  background: linear-gradient(158deg, rgba(20, 24, 38, 0.92), rgba(7, 9, 14, 0.88));
+  backdrop-filter: blur(6px);
+  padding: clamp(1.15rem, 2vw, 1.9rem);
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  /*
+    Rede de segurança: em viewports baixas, o card mais denso (Contencioso,
+    9 itens) pode ainda não caber mesmo com o espaço ampliado acima. Em vez
+    de cortar conteúdo de forma invisível (`overflow: hidden`), deixa rolar
+    dentro do próprio card — nunca esconde texto sem alguma forma de acesso.
+  */
+  overflow-y: auto;
+  overflow-x: hidden;
+  scrollbar-width: thin;
+  scrollbar-color: var(--paycon-blue-400) transparent;
+}
+
+.cardIndex {
+  font-size: 0.68rem;
+  letter-spacing: 0.2em;
+  color: var(--paycon-blue-300);
+  font-weight: 700;
+  flex-shrink: 0;
+}
+
+.cardTitle {
+  font-size: clamp(1.4rem, 2.1vw, 1.9rem);
+  font-weight: 520;
+  letter-spacing: -0.025em;
+  color: var(--paycon-white);
+  line-height: 1.08;
+  flex-shrink: 0;
+}
+
+.cardText {
+  font-size: 0.98rem;
+  color: var(--paycon-muted-strong);
+  max-width: 34rem;
+  line-height: 1.5;
+  flex-shrink: 0;
+}
+
+/* estatística em destaque — só o card "Insights" tem isso no site oficial */
+.cardHighlight {
+  font-size: 0.95rem;
+  color: var(--paycon-blue-200);
+  border-left: 2px solid var(--paycon-blue-500);
+  padding-left: 0.85rem;
+  max-width: 30rem;
+  line-height: 1.42;
+  flex-shrink: 0;
+}
+
+.features {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0.32rem 1.5rem;
+  margin-top: 0.2rem;
+}
+
+.features[data-dense="true"] {
+  grid-template-columns: 1fr 1fr;
+}
+
+.features li {
+  position: relative;
+  padding-left: 0.95rem;
+  font-size: 0.88rem;
+  color: var(--paycon-muted);
+  line-height: 1.42;
+}
+
+.features li::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0.55em;
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: var(--paycon-blue-400);
+}
+
+/* Coluna lateral direita: índice de navegação dos cards */
+.side {
+  align-self: center;
+  position: relative;
+  margin-right: clamp(1.5rem, 4vw, 4rem);
+  width: min(20rem, 26vw);
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+  z-index: 200;
+}
+
+.index {
+  display: flex;
+  flex-direction: column;
+  gap: 0.55rem;
+  border-left: 1px solid var(--paycon-line);
+  padding-left: 1rem;
+}
+
+.index li {
+  display: flex;
+  gap: 0.6rem;
+  font-size: 0.86rem;
+  color: var(--paycon-muted);
+  opacity: 0.5;
+  transition: opacity 0.4s var(--ease-standard), color 0.4s var(--ease-standard);
+}
+
+.index li span {
+  font-size: 0.6rem;
+  letter-spacing: 0.12em;
+  padding-top: 0.15em;
+}
+
+.index li[data-active="true"] {
+  opacity: 1;
+  color: var(--paycon-white);
+}
+
+.index li[data-active="true"] span {
+  color: var(--paycon-blue-300);
+}
+
+/* MOBILE / REDUCED MOTION: pilha 3D vira fluxo vertical full-width */
+@media (max-width: 960px) {
+  .sticky {
+    height: auto;
+    min-height: auto;
+    overflow: visible;
+    padding-block: var(--section-padding-y);
+    padding-inline: 1.25rem;
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+  }
+
+  .side,
+  .stack {
+    position: static;
+    transform: none;
+    width: auto;
+    max-width: none;
+    height: auto;
+    inset: auto;
+  }
+
+  .stack {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    perspective: none;
+    /* a `.stack` do desktop trava em 27rem (`max-height`) para a pilha 3D
+       caber na viewport — em fluxo normal isso cortava a descrição e as
+       features de cada card (só sobravam índice + título visíveis). */
+    max-height: none;
+  }
+
+  .card {
+    position: relative;
+    inset: auto;
+    height: auto;
+    overflow: visible;
+    opacity: 1 !important;
+    filter: none !important;
+    transform: none !important;
+    pointer-events: auto !important;
+  }
+
+  .features[data-dense="true"] {
+    grid-template-columns: 1fr;
+  }
+
+  .index {
+    display: none;
+  }
+
+  .sticky::before {
+    display: none;
+  }
+
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .stack {
+    position: static;
+    transform: none;
+    width: auto;
+    height: auto;
+    max-height: none;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    perspective: none;
+  }
+
+  .card {
+    position: relative;
+    inset: auto;
+    height: auto;
+    overflow: visible;
+    opacity: 1;
+    filter: none;
+    transform: none;
+  }
+
+  .side {
+    position: static;
+    transform: none;
+    width: auto;
+  }
+
+  .sticky {
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+    padding: var(--section-padding-y) clamp(1.5rem, 6vw, 7rem);
+    height: auto;
+    min-height: auto;
+    overflow: visible;
+  }
+}
