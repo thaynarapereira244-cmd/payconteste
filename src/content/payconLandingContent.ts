@@ -370,20 +370,42 @@ export const payconLandingContent = {
         stepLabel: "PASSO 01",
         title: "Diagnóstico",
         description:
-          "Entendemos como você e sua equipe realmente trabalham e quais são os desafios operacionais que as automações poderiam resolver",
+          "Tudo começa com escuta. Mapeamos os processos atuais do seu negócio, identificamos gargalos, riscos e oportunidades, e entendemos a fundo as necessidades reais antes de propor qualquer solução. É a base que garante que o projeto resolva o problema certo, não apenas o sintoma.",
       },
       {
         step: 2,
         stepLabel: "PASSO 02",
-        title: "Desenho da solução",
-        description: "Mapeamos e desenvolvemos automações que fazem sentido",
+        title: "Desenho da Solução",
+        description:
+          "Com o diagnóstico em mãos, desenhamos a solução sob medida: fluxos, integrações, automações e regras de negócio pensados para o seu contexto específico. Nada de fórmula pronta — cada solução é projetada para gerar eficiência real e se encaixar na forma como sua empresa trabalha.",
       },
       {
         step: 3,
         stepLabel: "PASSO 03",
+        title: "Desenvolvimento",
+        description:
+          "É hora de colocar a mão na massa. Nossa equipe transforma o desenho da solução em algo funcional, testado e robusto, seguindo boas práticas técnicas e mantendo você informado em cada etapa do processo. Transparência e qualidade caminham juntas aqui.",
+      },
+      {
+        step: 4,
+        stepLabel: "PASSO 04",
+        title: "Auditoria",
+        description:
+          "Antes de qualquer entrega, validamos tudo com rigor. Revisamos processos, testamos cenários e conferimos que a solução atende exatamente ao que foi planejado — com segurança, precisão e conformidade. É o nosso compromisso com a qualidade em cada detalhe.",
+      },
+      {
+        step: 5,
+        stepLabel: "PASSO 05",
         title: "Implementação",
         description:
-          "Sem traumas, respeitando seu ambiente tecnológico já existente, adaptamos as automações gerando rápida adesão e rápidos resultados",
+          "Com tudo validado, colocamos a solução no ar. Acompanhamos de perto a virada de chave, oferecendo suporte próximo à sua equipe para garantir uma transição tranquila e sem impactos na operação do dia a dia.",
+      },
+      {
+        step: 6,
+        stepLabel: "PASSO 06",
+        title: "Feedbacks",
+        description:
+          "O projeto não termina na entrega. Acompanhamos os resultados, ouvimos o retorno da sua equipe e ajustamos o que for necessário. Essa escuta contínua é o que transforma um projeto entregue em uma solução que realmente evolui com o seu negócio.",
       },
     ] satisfies MethodStep[],
     cta: { label: "QUERO UM DIAGNÓSTICO GRATUITO", placement: "metodo" },
@@ -462,7 +484,6 @@ export const payconLandingContent = {
     { id: "ford", name: "Ford", logo: "/assets/partners/partner-ford.webp" },
     { id: "energisa", name: "Energisa", logo: "/assets/partners/partner-energisa.webp" },
     { id: "cosan", name: "Cosan", logo: "/assets/partners/partner-cosan.webp" },
-    { id: "dasa", name: "Dasa", logo: "/assets/partners/partner-dasa.webp" },
     { id: "solar-coca-cola", name: "Solar Coca-Cola", logo: "/assets/partners/partner-solar-coca-cola.webp" },
     { id: "samsung", name: "Samsung", logo: "/assets/partners/partner-samsung.webp" },
     { id: "prudential", name: "Prudential", logo: "/assets/partners/partner-prudential.webp" },
