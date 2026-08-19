@@ -33,19 +33,25 @@ export function AboutScene() {
           <ul className={styles.teamList}>
             {team.map((member) => (
               <li key={member.id} className={styles.teamCard}>
-                <img
-                  src={member.photo}
-                  alt={member.name}
-                  loading="lazy"
-                  width="72"
-                  height="72"
-                  className={styles.teamPhoto}
-                />
-                <div className={styles.teamInfo}>
-                  <p className={styles.teamName}>{member.name}</p>
-                  <p className={styles.teamRole}>{member.role}</p>
-                  <p className={styles.teamBio}>{member.bio}</p>
+                <div className={styles.teamHead}>
+                  <img
+                    src={member.photo}
+                    alt={member.name}
+                    loading="lazy"
+                    width="60"
+                    height="60"
+                    className={styles.teamPhoto}
+                  />
+                  <div className={styles.teamInfo}>
+                    <p className={styles.teamName}>{member.name}</p>
+                    <p className={styles.teamRole}>{member.role}</p>
+                  </div>
                 </div>
+                {member.bio.split("\n\n").map((paragraph, i) => (
+                  <p key={i} className={styles.teamBio}>
+                    {paragraph}
+                  </p>
+                ))}
               </li>
             ))}
           </ul>

@@ -1,5 +1,5 @@
 import { useCallback, useRef } from "react";
-import { Gauge, Layers, ShieldCheck, TrendingDown, TrendingUp } from "lucide-react";
+import { Gauge, ShieldCheck } from "lucide-react";
 import { payconLandingContent } from "../../content/payconLandingContent";
 import { useTilt } from "../../hooks/useParallax";
 import { useStageScene } from "../../hooks/useStageScene";
@@ -13,21 +13,22 @@ import styles from "./TechnologyScene.module.css";
  * do mesmo scroll que move o palco de partículas para a fase "mosaic".
  */
 export function TechnologyScene() {
-  const { metrics, differentiators } = payconLandingContent;
+  const { differentiators } = payconLandingContent;
   const sectionRef = useRef<HTMLElement | null>(null);
   const tileRefs = useRef<Array<HTMLDivElement | null>>([]);
   const gridRef = useTilt<HTMLDivElement>(3, 0.05);
 
   /**
-   * FOCO ANTECIPADO.
+   * FOCO ANTECIPADO, SEM SAÍDA.
    *
    * Antes os quadradinhos só saíam do blur quando a seção já estava saindo da
    * tela (medido: blur 9px com a seção a 630px do topo, nítidos só em -90px).
    * Agora a progressão é:
    *   0–15%  entrada
    *   15–35% blur caindo
-   *   35–75% totalmente focado e estável
-   *   75–100% preparação para a próxima cena
+   *   35–100% totalmente focado e estável — sem fase de saída: os tiles
+   *   ficavam parcialmente apagados (opacidade -35%, leve desfoque) enquanto
+   *   ainda estavam bem visíveis na tela, antes do usuário terminar de ler.
    * O encaixe escalonado é preservado, só bem mais curto.
    */
   const onProgress = useCallback((p: number) => {
@@ -41,19 +42,16 @@ export function TechnologyScene() {
       const t = Math.min(1, Math.max(0, (p - delay) / 0.2));
       const eased = t < 0.5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2;
 
-      // saída suave só perto da transição seguinte
-      const exit = Math.min(1, Math.max(0, (p - 0.78) / 0.22));
-
       // planos alternados: uns vêm de trás, outros da frente e das laterais
       const dir = i % 3 === 0 ? -1 : i % 3 === 1 ? 1 : 0;
-      const z = (1 - eased) * -420 - exit * 90;
+      const z = (1 - eased) * -420;
       const x = (1 - eased) * dir * 90;
-      const y = (1 - eased) * (dir === 0 ? 70 : 24) - exit * 26;
-      const blur = (1 - eased) * 9 + exit * 2.2;
+      const y = (1 - eased) * (dir === 0 ? 70 : 24);
+      const blur = (1 - eased) * 9;
 
       el.style.transform = `translate3d(${x.toFixed(1)}px, ${y.toFixed(1)}px, ${z.toFixed(1)}px)`;
       el.style.filter = blur > 0.2 ? `blur(${blur.toFixed(2)}px)` : "none";
-      el.style.opacity = (eased * (1 - exit * 0.35)).toFixed(3);
+      el.style.opacity = eased.toFixed(3);
     }
   }, []);
 
@@ -75,8 +73,6 @@ export function TechnologyScene() {
     scrub: 0.7,
     onProgress,
   });
-
-  const metricIcons = [TrendingUp, Layers, TrendingDown];
 
   return (
     <section id="diferenciais" ref={sectionRef} className={styles.section} aria-labelledby="tech-heading">
@@ -106,25 +102,6 @@ export function TechnologyScene() {
               <p className={styles.tileText}>{item}</p>
             </div>
           ))}
-
-          {metrics.map((metric, i) => {
-            const Icon = metricIcons[i];
-            const idx = differentiators.items.length + i;
-            return (
-              <div
-                key={metric.label}
-                ref={(el) => {
-                  tileRefs.current[idx] = el;
-                }}
-                className={styles.tile}
-              >
-                <Icon size={16} className={styles.icon} aria-hidden="true" />
-                <span className={styles.metricValue}>{metric.value}</span>
-                <span className={styles.metricLabel}>{metric.label}</span>
-                <span className={styles.tileBar} aria-hidden="true" />
-              </div>
-            );
-          })}
         </div>
       </div>
     </section>

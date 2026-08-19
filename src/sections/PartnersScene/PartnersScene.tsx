@@ -10,7 +10,7 @@ const COLUMNS = 6;
  * CENA — parceiros como REDE, não como marquee.
  *
  * Cada logo nasce de um nó: o nó surge, a conexão se desenha e o logo é
- * revelado. Todos os 30 parceiros da página original são preservados, na mesma
+ * revelado. Todos os 32 parceiros da página original são preservados, na mesma
  * ordem, com alt text e sem filtro que descaracterize a marca.
  */
 export function PartnersScene() {

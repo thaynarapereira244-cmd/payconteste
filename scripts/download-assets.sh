@@ -13,6 +13,10 @@ declare -A PARTNERS=(
   [cea]="cea-BOpBPkyb.png"
   [braskem]="braskem-tkTMYvtO.png"
   [bat-brasil]="bat-brasil-Crzq4Szq.png"
+  # atvos e owens-illinois: no site oficial vêm inlined como base64 no bundle
+  # JS (assetsInlineLimit do Vite), não como arquivo separado em /assets — por
+  # isso não têm entrada aqui. Extraídos de src/lib/gsap... ver histórico do
+  # PartnersScene para o processo (bundle index-D7-gTxp2.js, vars SO/zO).
   [ambev]="ambev-C3ujZEHK.png"
   [cogna]="cogna-C6nmbb-L.png"
   [lactalis]="lactalis-DcSz-q91.png"

@@ -1,6 +1,5 @@
 import { useLayoutEffect, useRef } from "react";
 import { ArrowRight } from "lucide-react";
-import { HeroIntroGraphic } from "../../components/HeroIntroGraphic/HeroIntroGraphic";
 import { payconLandingContent } from "../../content/payconLandingContent";
 import { useReducedMotion } from "../../hooks/useReducedMotion";
 import { useStageScene, type StageSegment } from "../../hooks/useStageScene";
@@ -10,14 +9,16 @@ import styles from "./PayconHero.module.css";
 
 /**
  * Hero SEM morph de partículas — a pedido, o scroll não forma mais nuvem,
- * núcleo nem o wordmark PAYCON aqui. O visual da hero é só o
- * `HeroIntroGraphic` (cards conectados); sem pin, sem coreografia, sem
- * sequência para reverter — é uma seção normal, do tamanho do seu conteúdo.
+ * núcleo nem o wordmark PAYCON aqui. Sem pin, sem coreografia, sem sequência
+ * para reverter — é uma seção normal, do tamanho do seu conteúdo.
+ *
+ * O `HeroIntroGraphic` (cards conectados) foi removido a pedido; a hero é só
+ * texto + métricas.
  *
  * O palco de partículas continua existindo (as cenas seguintes — scanner,
  * cards, mosaico, rede de parceiros, logo final do CTA — dependem dele). Esta
  * única faixa mantém a opacidade em 0 enquanto a hero está em foco, para o
- * palco não desenhar a nuvem padrão por trás do gráfico. `start`/`end` cobrem
+ * palco não desenhar a nuvem padrão por trás do texto. `start`/`end` cobrem
  * toda a presença da seção na viewport; a arbitragem por proximidade do
  * centro (`isForemostScene`, em `useStageScene.ts`) garante que a cena
  * seguinte assuma o palco sem disputa assim que ficar mais próxima do centro.
@@ -25,7 +26,7 @@ import styles from "./PayconHero.module.css";
 const SEGMENTS: StageSegment[] = [{ phase: "hero-cloud", opacity: [0, 0] }];
 
 export function PayconHero() {
-  const { hero } = payconLandingContent;
+  const { hero, metrics } = payconLandingContent;
   const sectionRef = useRef<HTMLDivElement | null>(null);
   const headlineRef = useRef<HTMLHeadingElement | null>(null);
   const reducedMotion = useReducedMotion();
@@ -71,6 +72,7 @@ export function PayconHero() {
             {hero.headline}
           </h1>
           <p className={styles.subheadline}>{hero.subheadline}</p>
+          <p className={styles.body}>{hero.body}</p>
           <a
             href={hero.cta.href}
             className={styles.cta}
@@ -81,19 +83,15 @@ export function PayconHero() {
           </a>
         </div>
 
-        {/*
-          Gráfico de repouso: cards conectados. É todo o visual da hero — fixo,
-          sem morph. O tamanho da caixa vem de FORA (`.graphicSlot`, em fluxo
-          normal depois de `.copy`) — o componente só preenche o espaço
-          reservado, nunca se posiciona por conta própria.
-        */}
-        <div className={styles.graphicSlot}>
-          <HeroIntroGraphic />
-        </div>
-
-        <span className={styles.scrollHint} aria-hidden="true">
-          ROLE PARA CONECTAR
-        </span>
+        {/* Métricas: no site oficial ficam dentro da própria hero, logo após o CTA */}
+        <dl className={styles.metrics}>
+          {metrics.map((metric) => (
+            <div key={metric.label} className={styles.metric}>
+              <dt>{metric.value}</dt>
+              <dd>{metric.label}</dd>
+            </div>
+          ))}
+        </dl>
       </div>
     </section>
   );

@@ -1,15 +1,31 @@
 import { useCallback, useRef, useState } from "react";
 import { payconLandingContent } from "../../content/payconLandingContent";
-import { useReducedMotion } from "../../hooks/useReducedMotion";
 import { useMediaQuery } from "../../hooks/useMediaQuery";
 import { useTilt } from "../../hooks/useParallax";
 import { useStageScene } from "../../hooks/useStageScene";
 import styles from "./SolutionsScene.module.css";
 
-const CARD_IDS = ["contratos", "contencioso", "esocialpro", "controladoria", "societario"];
+/**
+ * Os 8 produtos são UM produto só (soluções P2P) no site oficial — Insights,
+ * Baixa de provisão e Dados Qualificados não vivem numa cena separada da de
+ * Contratos/Contencioso/etc., é a mesma sequência de cards. Antes essa
+ * separação existia só porque cada trio ganhou um componente diferente
+ * (`AnalysisScene` vs `SolutionsScene`) durante a reconstrução visual —
+ * unificado a pedido.
+ */
+const CARD_IDS = [
+  "insights",
+  "baixa-de-provisao",
+  "dados-qualificados",
+  "contratos",
+  "contencioso",
+  "esocialpro",
+  "controladoria",
+  "societario",
+];
 
 /**
- * CENA 4 — cards em profundidade à esquerda/centro, índice de navegação à direita.
+ * CENA — cards em profundidade à esquerda/centro, índice de navegação à direita.
  *
  * Não é um grid nem um carrossel: os cards vivem numa pilha 3D e o scroll move
  * um índice contínuo (`activeFloat`). Cada card calcula sua distância desse
@@ -17,18 +33,13 @@ const CARD_IDS = ["contratos", "contencioso", "esocialpro", "controladoria", "so
  * totalmente legível por vez, os demais permanecem parcialmente visíveis.
  */
 export function SolutionsScene() {
-  const { solutionsIntro, solutions } = payconLandingContent;
+  const { solutions } = payconLandingContent;
   const cards = CARD_IDS.map((id) => solutions.find((s) => s.id === id)!);
-  // 1º princípio é a "frase-título" em destaque (mesma estrutura do site
-  // oficial); os demais têm o título embutido em negrito no próprio parágrafo.
-  const [leadPrinciple, ...restPrinciples] = solutionsIntro.principles;
 
   const sectionRef = useRef<HTMLElement | null>(null);
   const stickyRef = useRef<HTMLDivElement | null>(null);
   const cardRefs = useRef<Array<HTMLElement | null>>([]);
-  const introRef = useRef<HTMLDivElement | null>(null);
   const stackRef = useTilt<HTMLDivElement>(5, 0.05);
-  const reducedMotion = useReducedMotion();
   const isDesktop = useMediaQuery("(min-width: 961px)");
   const [activeIndex, setActiveIndex] = useState(0);
 
@@ -36,15 +47,10 @@ export function SolutionsScene() {
     (p: number) => {
       const n = cards.length;
 
-      // 0–18%: intro entra. 18–30%: título estável, ambiente aparece.
-      // 30–78%: cards percorrem. 78–100%: reorganizam para a cena seguinte.
-      const introEl = introRef.current;
-      if (introEl) {
-        const enter = Math.min(1, Math.max(0, p / 0.18));
-        introEl.style.opacity = enter.toFixed(3);
-        introEl.style.transform = `translate3d(0, ${((1 - enter) * 18).toFixed(1)}px, 0)`;
-      }
-
+      // 0–8%: ambiente assenta. 8–94%: cards percorrem. 94–100%: reorganizam
+      // para a cena seguinte. (Sem intro para revelar aqui — ela agora é a
+      // seção `SolutionsIntroScene`, separada — a pilha usa quase todo o
+      // progresso do pin só para os cards.)
       if (!isDesktop) {
         // mobile: cards em fluxo full-width, sem pilha 3D — limpa transforms
         for (let i = 0; i < n; i++) {
@@ -54,8 +60,8 @@ export function SolutionsScene() {
         }
         return;
       }
-      // os cards só começam a percorrer depois de 30% do progresso
-      const cardsPhase = Math.min(1, Math.max(0, (p - 0.3) / 0.48));
+      // os cards só começam a percorrer depois de 8% do progresso
+      const cardsPhase = Math.min(1, Math.max(0, (p - 0.08) / 0.86));
       const activeFloat = Math.min(n - 1, Math.max(0, cardsPhase * (n - 1)));
       setActiveIndex(Math.round(activeFloat));
 
@@ -105,7 +111,9 @@ export function SolutionsScene() {
       },
     ],
     start: isDesktop ? "top top" : "top 80%",
-    end: isDesktop ? () => `+=${window.innerHeight * 2.6}` : "bottom 20%",
+    // distância de scroll proporcional ao nº de cards, calibrada para a nova
+    // faixa de "cards" (70% do progresso, ver onProgress): ~0.4vh por card.
+    end: isDesktop ? () => `+=${window.innerHeight * cards.length * 0.4}` : "bottom 20%",
     scrub: 1,
     pinRef: stickyRef,
     pinEnabled: isDesktop,
@@ -113,30 +121,12 @@ export function SolutionsScene() {
   });
 
   return (
-    <section ref={sectionRef} className={styles.section} aria-labelledby="solutions-heading">
+    <section
+      ref={sectionRef}
+      className={styles.section}
+      aria-label="Produtos e soluções Paycon"
+    >
       <div ref={stickyRef} className={styles.sticky}>
-        {/*
-          Intro editorial no topo — MESMA estrutura do site oficial (só a
-          estética muda): título, depois a frase-título do 1º princípio em
-          destaque, depois um bloco de parágrafo com os outros 3 princípios,
-          cada um com o título embutido em negrito na própria linha.
-        */}
-        <div ref={introRef} className={styles.intro}>
-          <span className="eyebrow">{solutionsIntro.label}</span>
-          <h2 id="solutions-heading" className={styles.introTitle}>
-            {solutionsIntro.title}
-          </h2>
-          <p className={styles.introLead}>{leadPrinciple.title}</p>
-          <div className={styles.introPrinciples}>
-            <p>{leadPrinciple.description}</p>
-            {restPrinciples.map((principle) => (
-              <p key={principle.title}>
-                <strong>{principle.title}:</strong> {principle.description}
-              </p>
-            ))}
-          </div>
-        </div>
-
         <div ref={stackRef} className={styles.stack}>
           {cards.map((card, i) => (
             <article
@@ -151,6 +141,8 @@ export function SolutionsScene() {
               <h3 className={styles.cardTitle}>{card.title}</h3>
               {/* Controladoria/Societário não têm frase de abertura no site oficial */}
               {card.description ? <p className={styles.cardText}>{card.description}</p> : null}
+              {/* só o Insights tem essa estatística em destaque no site oficial */}
+              {card.highlight ? <p className={styles.cardHighlight}>{card.highlight}</p> : null}
               {card.features ? (
                 <ul className={styles.features} data-dense={card.features.length > 5 ? "true" : undefined}>
                   {card.features.map((f) => (
@@ -158,6 +150,14 @@ export function SolutionsScene() {
                   ))}
                 </ul>
               ) : null}
+              {/*
+                Sem botão aqui de propósito: o card é `overflow:hidden` com
+                altura travada (`.stack`/`.card`), e listas longas (Contencioso
+                tem 9 itens) já ocupam todo o espaço — o CTA cortava o rodapé
+                do card no mobile. O dado `card.cta` continua em
+                payconLandingContent.ts para fidelidade à copy; só não é
+                renderizado neste layout específico.
+              */}
             </article>
           ))}
         </div>
@@ -174,7 +174,6 @@ export function SolutionsScene() {
           </ol>
         </div>
 
-        {reducedMotion ? null : <div className={styles.hint} aria-hidden="true">ROLE PARA PERCORRER</div>}
       </div>
     </section>
   );

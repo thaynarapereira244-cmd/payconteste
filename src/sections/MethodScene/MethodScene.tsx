@@ -79,7 +79,7 @@ export function MethodScene() {
           <div className={styles.progressLine} aria-hidden="true" />
           {method.steps.map((step) => (
             <div key={step.step} className={styles.step}>
-              <span className={styles.stepNumber}>{String(step.step).padStart(2, "0")}</span>
+              <span className={styles.stepNumber}>{step.stepLabel}</span>
               <div>
                 <h3 className="text-display-sm">{step.title}</h3>
                 <p className="text-body">{step.description}</p>

@@ -1,22 +1,16 @@
 .section {
   padding-block: var(--section-padding-y);
+  overflow: hidden;
 }
 
-.grid {
+.intro {
   max-width: 100rem;
   margin-inline: auto;
   padding-inline: clamp(1.5rem, 6vw, 7rem);
-  display: grid;
-  grid-template-columns: minmax(0, 20rem) 1fr;
-  gap: clamp(2rem, 5vw, 5rem);
-  align-items: center;
-}
-
-.copy {
   display: flex;
   flex-direction: column;
-  gap: 1rem;
-  align-items: flex-start;
+  gap: 0.6rem;
+  margin-bottom: clamp(2rem, 5vw, 3.5rem);
 }
 
 .title {
@@ -26,100 +20,71 @@
   line-height: 1.12;
 }
 
-.controls {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  margin-top: 0.75rem;
-}
-
 /*
-  Área clicável inteira ampliada (era 38px, abaixo do mínimo de 44px):
-  56px no geral e 60px em telas largas — o botão todo cresce, não só o ícone.
+  Esteira contínua: `.viewport` recorta e esmaece as bordas (mask-image),
+  `.track` é a fileira DUPLICADA inteira andando via `@keyframes` — nunca
+  para, nunca reseta de forma perceptível (ver comentário no .tsx). Mesma
+  técnica usada no `PartnersMarquee` (removido depois) e no marquee de
+  parceiros do site oficial.
 */
-.navButton {
-  display: grid;
-  place-items: center;
-  width: 56px;
-  height: 56px;
-  border-radius: 50%;
-  border: 1px solid var(--paycon-line-strong);
-  background: rgba(20, 24, 38, 0.5);
-  color: var(--paycon-text);
-  cursor: pointer;
-  transition: border-color var(--duration-fast) var(--ease-standard),
-    color var(--duration-fast) var(--ease-standard),
-    background var(--duration-fast) var(--ease-standard), transform 0.12s var(--ease-standard);
-}
-
-.navButton:hover {
-  border-color: var(--paycon-blue-400);
-  color: var(--paycon-blue-100);
-  background: rgba(34, 38, 90, 0.6);
-}
-
-.navButton:focus-visible {
-  outline: 2px solid var(--paycon-blue-300);
-  outline-offset: 3px;
-}
-
-/* estado pressionado */
-.navButton:active {
-  transform: scale(0.94);
-  background: rgba(69, 75, 150, 0.55);
-}
-
-.counter {
-  margin-left: 0.35rem;
-  font-size: 0.8rem;
-  letter-spacing: 0.1em;
-  color: var(--paycon-muted);
-  font-variant-numeric: tabular-nums;
-}
-
-.counter strong {
-  color: var(--paycon-white);
-  font-weight: 650;
-}
-
-.progressTrack {
-  position: relative;
-  width: min(13rem, 100%);
-  height: 2px;
-  margin-top: 1.1rem;
-  background: var(--paycon-line);
-  border-radius: 2px;
+.viewport {
   overflow: hidden;
+  width: 100%;
+  -webkit-mask-image: linear-gradient(90deg, transparent 0, #000 6%, #000 94%, transparent 100%);
+  mask-image: linear-gradient(90deg, transparent 0, #000 6%, #000 94%, transparent 100%);
 }
 
-.progressFill {
-  position: absolute;
-  inset-block: 0;
-  left: 0;
-  background: linear-gradient(90deg, var(--paycon-blue-500), var(--paycon-blue-300));
-  border-radius: 2px;
-  transition: width 0.35s var(--ease-standard);
+.track {
+  display: flex;
+  width: max-content;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  animation: scroll-testimonials 44s linear infinite;
 }
 
-@media (min-width: 1280px) {
-  .navButton {
-    width: 60px;
-    height: 60px;
+.track[data-paused="true"] {
+  animation-play-state: paused;
+}
+
+@keyframes scroll-testimonials {
+  from {
+    transform: translate3d(0, 0, 0);
+  }
+  to {
+    /* metade da fileira: a lista está duplicada, então -50% fecha o loop
+       exatamente onde o segundo conjunto (idêntico ao primeiro) começa */
+    transform: translate3d(-50%, 0, 0);
   }
 }
 
+.slide {
+  flex: 0 0 auto;
+  width: clamp(17rem, 30vw, 21rem);
+  box-sizing: border-box;
+  padding-inline: 0.6rem;
+}
+
 .card {
+  height: 100%;
   border: 1px solid var(--paycon-line);
-  border-radius: 22px;
+  border-radius: 20px;
   background: linear-gradient(160deg, rgba(20, 24, 38, 0.82), rgba(7, 9, 14, 0.72));
   backdrop-filter: blur(8px);
-  padding: clamp(1.75rem, 3.4vw, 3rem);
-  min-height: 17rem;
+  padding: clamp(1.4rem, 2.2vw, 1.9rem);
+  min-height: 16rem;
   display: flex;
   flex-direction: column;
-  justify-content: center;
-  gap: 1.4rem;
-  transform: perspective(1000px) rotateY(var(--tilt-y, 0deg)) rotateX(var(--tilt-x, 0deg));
+  gap: 1rem;
+}
+
+.sectorTag {
+  align-self: flex-start;
+  font-size: 0.66rem;
+  font-weight: 650;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--paycon-blue-300);
 }
 
 .quoteIcon {
@@ -127,44 +92,56 @@
 }
 
 .quote {
-  font-size: clamp(1.05rem, 1.7vw, 1.5rem);
-  line-height: 1.42;
-  letter-spacing: -0.015em;
+  font-size: 0.9rem;
+  line-height: 1.5;
+  letter-spacing: -0.005em;
   color: var(--paycon-text);
-  max-width: 44rem;
+  /* trava em 6 linhas: cards lado a lado precisam da mesma altura, e
+     depoimentos variam muito de tamanho (de 1 frase a um parágrafo inteiro) */
+  display: -webkit-box;
+  -webkit-line-clamp: 6;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
 }
 
 .person {
   display: flex;
   align-items: center;
-  gap: 0.85rem;
+  gap: 0.7rem;
+  margin-top: auto;
 }
 
 .photo {
-  width: 44px;
-  height: 44px;
+  width: 40px;
+  height: 40px;
   border-radius: 50%;
   object-fit: cover;
   border: 1px solid var(--paycon-line-strong);
+  flex-shrink: 0;
 }
 
 .name {
   font-weight: 600;
-  font-size: 0.9rem;
+  font-size: 0.86rem;
 }
 
 .role {
-  font-size: 0.78rem;
+  font-size: 0.74rem;
   color: var(--paycon-muted);
 }
 
-@media (max-width: 960px) {
-  .grid {
-    grid-template-columns: 1fr;
-    gap: 1.75rem;
+@media (max-width: 640px) {
+  .slide {
+    width: 82vw;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .track {
+    animation: none;
   }
 
-  .card {
-    transform: none;
+  .viewport {
+    overflow-x: auto;
   }
 }

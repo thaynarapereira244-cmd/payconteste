@@ -1,0 +1,51 @@
+.section {
+  position: relative;
+  padding-block: var(--section-padding-y);
+}
+
+.inner {
+  max-width: 56rem;
+  margin-inline: auto;
+  padding-inline: clamp(1.5rem, 6vw, 7rem);
+  display: flex;
+  flex-direction: column;
+  gap: 0.9rem;
+}
+
+.title {
+  font-size: clamp(1.9rem, 3.4vw, 3rem);
+  font-weight: 520;
+  letter-spacing: -0.03em;
+  line-height: 1.1;
+  max-width: 24ch;
+}
+
+/*
+  Frase-título do 1º princípio (destacada, mesma posição que no site oficial —
+  ali vem antes do parágrafo, não misturada com ele) + o bloco de parágrafo dos
+  outros 3 princípios, com o título embutido em negrito na própria linha.
+*/
+.lead {
+  font-size: clamp(1rem, 1.3vw, 1.2rem);
+  font-weight: 650;
+  color: var(--paycon-text);
+  margin-top: 0.4rem;
+}
+
+.principles {
+  display: flex;
+  flex-direction: column;
+  gap: 0.7rem;
+  margin-top: 0.2rem;
+}
+
+.principles p {
+  font-size: var(--fs-body-md);
+  line-height: 1.6;
+  color: var(--paycon-muted);
+}
+
+.principles strong {
+  color: var(--paycon-blue-200);
+  font-weight: 650;
+}

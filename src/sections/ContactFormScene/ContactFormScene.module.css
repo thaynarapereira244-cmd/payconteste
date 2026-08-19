@@ -1,10 +1,9 @@
-/* Área do formulário: fundo sólido, sem partículas competindo com os campos */
+/* Área do formulário: mesmo fundo transparente das outras seções (o palco de
+   partículas atravessa a página inteira — ver comentário em globals.css) */
 .formSection {
   position: relative;
   z-index: 3;
   padding-block: var(--section-padding-y);
-  background: var(--paycon-black);
-  border-top: 1px solid var(--paycon-line);
 }
 
 .formGrid {

@@ -1,5 +1,5 @@
 import { useState, type FormEvent } from "react";
-import { payconLandingContent } from "../../content/payconLandingContent";
+import { payconLandingContent, type PayconLandingContent } from "../../content/payconLandingContent";
 import { getSupabase } from "../../lib/supabaseClient";
 import { trackCtaClick } from "../../lib/analytics";
 import styles from "./ContactForm.module.css";
@@ -26,15 +26,17 @@ const INITIAL_STATE: FormState = {
 
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
-function validate(state: FormState): FormErrors {
+function validate(state: FormState, fields: PayconLandingContent["form"]["fields"]): FormErrors {
   const errors: FormErrors = {};
-  if (!state.name.trim()) errors.name = "Informe seu nome.";
-  if (!state.email.trim()) errors.email = "Informe seu e-mail.";
-  else if (!EMAIL_PATTERN.test(state.email.trim())) errors.email = "Informe um e-mail válido.";
-  if (!state.phone.trim()) errors.phone = "Informe seu celular.";
-  if (!state.company.trim()) errors.company = "Informe o nome da empresa.";
-  if (!state.role.trim()) errors.role = "Informe seu cargo.";
-  if (!state.sector.trim()) errors.sector = "Selecione uma opção.";
+  const isRequired = (id: string) => fields.find((f) => f.id === id)?.required ?? false;
+
+  if (isRequired("name") && !state.name.trim()) errors.name = "Informe seu nome.";
+  if (isRequired("email") && !state.email.trim()) errors.email = "Informe seu e-mail.";
+  else if (state.email.trim() && !EMAIL_PATTERN.test(state.email.trim())) errors.email = "Informe um e-mail válido.";
+  if (isRequired("phone") && !state.phone.trim()) errors.phone = "Informe seu celular.";
+  if (isRequired("company") && !state.company.trim()) errors.company = "Informe o nome da empresa.";
+  if (isRequired("role") && !state.role.trim()) errors.role = "Informe seu cargo.";
+  if (isRequired("sector") && !state.sector.trim()) errors.sector = "Selecione uma opção.";
   return errors;
 }
 
@@ -54,7 +56,7 @@ export function ContactForm() {
     e.preventDefault();
     if (status === "submitting") return;
 
-    const validationErrors = validate(state);
+    const validationErrors = validate(state, form.fields);
     setErrors(validationErrors);
     if (Object.keys(validationErrors).length > 0) return;
 

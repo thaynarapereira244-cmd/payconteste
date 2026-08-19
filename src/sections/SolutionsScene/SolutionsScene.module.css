@@ -8,16 +8,16 @@
   height: 100vh;
   overflow: hidden;
   /*
-    Grade em FLUXO em vez de posicionamento absoluto por porcentagem.
-    Antes o intro ficava em `top: clamp(150px,17vh,230px)` e a pilha em
-    `top: 57%` — em telas baixas (1366×768) as duas faixas se cruzavam e o
-    título caía sobre os cards (medi 10px de sobreposição).
-    Agora o intro tem sua própria linha e a pilha só existe na linha de baixo.
+    Flex em vez de grid: com uma única "linha" de conteúdo (o título
+    "Soluções P2P" saiu daqui, virou a seção `SolutionsIntroScene`), um grid
+    sem `grid-template-columns` empilha `.stack`/`.side` em linhas verticais
+    separadas por padrão (auto-flow:row) em vez de colocá-los lado a lado —
+    foi o que aconteceu depois da remoção do intro. Flex row resolve direto.
   */
-  display: grid;
-  grid-template-rows: auto minmax(0, 1fr);
-  row-gap: clamp(32px, 6vh, 80px);
-  padding: clamp(120px, 14vh, 200px) 0 clamp(2.5rem, 6vh, 4rem);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: clamp(88px, 11vh, 160px) 0 clamp(1.25rem, 3vh, 2rem);
   box-sizing: border-box;
   /* atmosfera limpa, sem campo de partículas atrás do texto */
   background:
@@ -38,68 +38,16 @@
   mask-image: radial-gradient(70% 60% at 60% 50%, black, transparent 78%);
 }
 
-/*
-  Intro no canto superior esquerdo, com respiro do header.
-  Antes ficava a ~26px do header; agora o mínimo é 120px.
-*/
-.intro {
-  grid-row: 1;
-  padding-inline: clamp(1.5rem, 6vw, 7rem);
-  max-width: 50rem;
-  display: flex;
-  flex-direction: column;
-  gap: 0.6rem;
-  z-index: 200;
-}
-
-.introTitle {
-  font-size: clamp(1.4rem, 2vw, 2rem);
-  font-weight: 520;
-  letter-spacing: -0.025em;
-  line-height: 1.14;
-}
-
-/*
-  Frase-título do 1º princípio (destacada, mesma posição que no site oficial —
-  ali vem antes do parágrafo, não misturada com ele) + o bloco de parágrafo dos
-  outros 3 princípios, com o título embutido em negrito na própria linha.
-  Tipografia compacta de propósito: esta faixa é PINADA em altura fixa no
-  desktop (a pilha 3D de cards precisa do resto do espaço) — ver `.sticky`.
-*/
-.introLead {
-  font-size: clamp(0.82rem, 1vw, 0.95rem);
-  font-weight: 650;
-  color: var(--paycon-text);
-  margin-top: 0.15rem;
-}
-
-.introPrinciples {
-  display: flex;
-  flex-direction: column;
-  gap: 0.45rem;
-}
-
-.introPrinciples p {
-  font-size: 0.78rem;
-  line-height: 1.48;
-  color: var(--paycon-muted);
-}
-
-.introPrinciples strong {
-  color: var(--paycon-blue-200);
-  font-weight: 650;
-}
-
 /* Pilha 3D de cards, ancorada à esquerda/centro */
-/* A pilha ocupa a segunda linha da grade: nunca invade a faixa do título. */
 .stack {
-  grid-row: 2;
   position: relative;
-  justify-self: start;
   margin-left: clamp(1.5rem, 8vw, 10rem);
   width: min(44rem, 52vw);
   height: 100%;
-  max-height: 27rem;
+  /* teto alto o suficiente pra nunca ser o fator limitante — quem decide a
+     altura real é o espaço que sobra na grade (`minmax(0,1fr)` de `.sticky`);
+     este valor só evita que a pilha cresça sem limite em telas muito altas. */
+  max-height: 40rem;
   transform: perspective(1500px) rotateY(var(--tilt-y, 0deg)) rotateX(var(--tilt-x, 0deg));
   transform-style: preserve-3d;
 }
@@ -113,40 +61,63 @@
   border-radius: 18px;
   background: linear-gradient(158deg, rgba(20, 24, 38, 0.92), rgba(7, 9, 14, 0.88));
   backdrop-filter: blur(6px);
-  padding: clamp(1.5rem, 2.6vw, 2.4rem);
+  padding: clamp(1.15rem, 2vw, 1.9rem);
   display: flex;
   flex-direction: column;
-  gap: 0.7rem;
-  overflow: hidden;
+  gap: 0.5rem;
+  /*
+    Rede de segurança: em viewports baixas, o card mais denso (Contencioso,
+    9 itens) pode ainda não caber mesmo com o espaço ampliado acima. Em vez
+    de cortar conteúdo de forma invisível (`overflow: hidden`), deixa rolar
+    dentro do próprio card — nunca esconde texto sem alguma forma de acesso.
+  */
+  overflow-y: auto;
+  overflow-x: hidden;
+  scrollbar-width: thin;
+  scrollbar-color: var(--paycon-blue-400) transparent;
 }
 
 .cardIndex {
-  font-size: 0.66rem;
+  font-size: 0.68rem;
   letter-spacing: 0.2em;
   color: var(--paycon-blue-300);
   font-weight: 700;
+  flex-shrink: 0;
 }
 
 .cardTitle {
-  font-size: clamp(1.5rem, 2.4vw, 2.1rem);
+  font-size: clamp(1.4rem, 2.1vw, 1.9rem);
   font-weight: 520;
   letter-spacing: -0.025em;
   color: var(--paycon-white);
   line-height: 1.08;
+  flex-shrink: 0;
 }
 
 .cardText {
-  font-size: 0.95rem;
+  font-size: 0.98rem;
   color: var(--paycon-muted-strong);
   max-width: 34rem;
-  line-height: 1.55;
+  line-height: 1.5;
+  flex-shrink: 0;
+}
+
+/* estatística em destaque — só o card "Insights" tem isso no site oficial */
+.cardHighlight {
+  font-size: 0.95rem;
+  color: var(--paycon-blue-200);
+  border-left: 2px solid var(--paycon-blue-500);
+  padding-left: 0.85rem;
+  max-width: 30rem;
+  line-height: 1.42;
+  flex-shrink: 0;
 }
 
 .features {
   display: grid;
   grid-template-columns: 1fr;
-  gap: 0.4rem 1.5rem;
-  margin-top: 0.3rem;
+  gap: 0.32rem 1.5rem;
+  margin-top: 0.2rem;
 }
 
 .features[data-dense="true"] {
@@ -156,9 +127,9 @@
 .features li {
   position: relative;
   padding-left: 0.95rem;
-  font-size: 0.82rem;
+  font-size: 0.88rem;
   color: var(--paycon-muted);
-  line-height: 1.45;
+  line-height: 1.42;
 }
 
 .features li::before {
@@ -172,10 +143,8 @@
   background: var(--paycon-blue-400);
 }
 
-/* Coluna lateral direita: índice + princípios P2P */
+/* Coluna lateral direita: índice de navegação dos cards */
 .side {
-  grid-row: 2;
-  justify-self: end;
   align-self: center;
   position: relative;
   margin-right: clamp(1.5rem, 4vw, 4rem);
@@ -197,7 +166,7 @@
 .index li {
   display: flex;
   gap: 0.6rem;
-  font-size: 0.78rem;
+  font-size: 0.86rem;
   color: var(--paycon-muted);
   opacity: 0.5;
   transition: opacity 0.4s var(--ease-standard), color 0.4s var(--ease-standard);
@@ -218,21 +187,12 @@
   color: var(--paycon-blue-300);
 }
 
-.hint {
-  position: absolute;
-  bottom: clamp(1.5rem, 4vh, 2.5rem);
-  left: clamp(1.5rem, 6vw, 7rem);
-  font-size: 0.6rem;
-  letter-spacing: 0.2em;
-  color: var(--paycon-muted);
-  opacity: 0.45;
-}
-
 /* MOBILE / REDUCED MOTION: pilha 3D vira fluxo vertical full-width */
 @media (max-width: 960px) {
   .sticky {
     height: auto;
     min-height: auto;
+    overflow: visible;
     padding-block: var(--section-padding-y);
     padding-inline: 1.25rem;
     display: flex;
@@ -240,7 +200,6 @@
     gap: 2rem;
   }
 
-  .intro,
   .side,
   .stack {
     position: static;
@@ -256,11 +215,17 @@
     flex-direction: column;
     gap: 1rem;
     perspective: none;
+    /* a `.stack` do desktop trava em 27rem (`max-height`) para a pilha 3D
+       caber na viewport — em fluxo normal isso cortava a descrição e as
+       features de cada card (só sobravam índice + título visíveis). */
+    max-height: none;
   }
 
   .card {
     position: relative;
     inset: auto;
+    height: auto;
+    overflow: visible;
     opacity: 1 !important;
     filter: none !important;
     transform: none !important;
@@ -279,9 +244,6 @@
     display: none;
   }
 
-  .hint {
-    display: none;
-  }
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -290,6 +252,7 @@
     transform: none;
     width: auto;
     height: auto;
+    max-height: none;
     display: flex;
     flex-direction: column;
     gap: 1rem;
@@ -299,12 +262,13 @@
   .card {
     position: relative;
     inset: auto;
+    height: auto;
+    overflow: visible;
     opacity: 1;
     filter: none;
     transform: none;
   }
 
-  .intro,
   .side {
     position: static;
     transform: none;
@@ -318,5 +282,6 @@
     padding: var(--section-padding-y) clamp(1.5rem, 6vw, 7rem);
     height: auto;
     min-height: auto;
+    overflow: visible;
   }
 }

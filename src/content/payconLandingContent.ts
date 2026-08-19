@@ -31,15 +31,18 @@ export type SolutionProduct = {
 export type Testimonial = {
   id: string;
   name: string;
-  role: string;
-  company: string;
-  companySector: string;
+  /** Linha de atribuição EXATA do site oficial (ex.: "Gerente de Planejamento Jurídico da Braskem"). */
+  attribution: string;
+  /** Tag de setor exibida acima da citação no site oficial (ex.: "Na indústria"). */
+  sectorTag: string;
   quote: string;
   photo: string;
 };
 
 export type MethodStep = {
   step: number;
+  /** Rótulo exato do site oficial (ex.: "PASSO 01"). */
+  stepLabel: string;
   title: string;
   description: string;
 };
@@ -95,7 +98,7 @@ export const payconLandingContent = {
   ] satisfies NavLink[],
 
   hero: {
-    headline: "Transforme tarefas em um clique",
+    headline: "Transforme tarefas do departamento jurídico em um clique",
     subheadline:
       "Automações jurídicas sob medida integradas ao sistema que você já usa.",
     body:
@@ -150,12 +153,14 @@ export const payconLandingContent = {
       title: "Baixa de provisão",
       description:
         "Identificamos casos para baixa de provisão e acuracidade no seu resultado",
+      cta: { label: "SOLICITAR DEMONSTRAÇÃO", placement: "solutions" },
     },
     {
       id: "dados-qualificados",
       title: "Dados Qualificados",
       description:
         "Mais do que dados do CNJ, entregamos Inteligência de dados com uma classificação e qualificação ímpar.",
+      cta: { label: "SOLICITAR DEMONSTRAÇÃO", placement: "solutions" },
     },
     {
       id: "contratos",
@@ -168,6 +173,7 @@ export const payconLandingContent = {
         "Gerador automático",
         "Painel com vencimentos, nomes das partes, multa etc",
       ],
+      cta: { label: "SOLICITAR DEMONSTRAÇÃO", placement: "solutions" },
     },
     {
       id: "contencioso",
@@ -184,6 +190,7 @@ export const payconLandingContent = {
         "Painel de contingências",
         "Atualização de índice de juros e correção monetária",
       ],
+      cta: { label: "SOLICITAR DEMONSTRAÇÃO", placement: "solutions" },
     },
     {
       id: "esocialpro",
@@ -195,6 +202,7 @@ export const payconLandingContent = {
         "Painéis de gestão e controle",
         "Integração com os seus sistemas",
       ],
+      cta: { label: "SOLICITAR DEMONSTRAÇÃO", placement: "solutions" },
     },
     {
       id: "controladoria",
@@ -208,6 +216,7 @@ export const payconLandingContent = {
         "seu APP para controle e elaboração dos exercícios",
         "ou um cockpit robusto em Excel",
       ],
+      cta: { label: "SOLICITAR DEMONSTRAÇÃO", placement: "solutions" },
     },
     {
       id: "societario",
@@ -218,6 +227,7 @@ export const payconLandingContent = {
         "Árvore de decisão (quem pode assinar um documento?)",
         "Painel com as informações das empresas (CNPJ, nome, endereço, capital social etc.)",
       ],
+      cta: { label: "SOLICITAR DEMONSTRAÇÃO", placement: "solutions" },
     },
   ] satisfies SolutionProduct[],
 
@@ -233,9 +243,8 @@ export const payconLandingContent = {
     {
       id: "luiz-tassitani",
       name: "Luiz Felipe Tassitani",
-      role: "Gerente de Planejamento Jurídico",
-      company: "Braskem",
-      companySector: "Industrial",
+      attribution: "Gerente de Planejamento Jurídico da Braskem",
+      sectorTag: "Na indústria",
       // "SLA" repetido é do próprio site oficial (verificado no DOM ao vivo), não erro de transcrição
       quote:
         "O Robô de pagamentos desenvolvido pela Paycon trouxe um maior controle e segurança para os pagamentos de despesas legais, além da redução efetiva do SLA redução efetiva do SLA de pagamentos.",
@@ -244,9 +253,8 @@ export const payconLandingContent = {
     {
       id: "andreia-nunes",
       name: "Andréia Nunes",
-      role: "Gerente de Inovação Jurídica",
-      company: "Claro",
-      companySector: "Telecomunicações",
+      attribution: "Gerente de Inovação Jurídica da Claro",
+      sectorTag: "Na telefonia",
       quote:
         "Com uma acuracidade impressionante de 99% de similaridade em relação aos resultados oficiais da contabilidade, conseguimos gerar prévias confiáveis e antecipadas, o que nos trouxe previsibilidade e segurança. Ter o fechamento 'na mão' antes da consolidação oficial nos proporcionou a tranquilidade necessária para atuar com mais estratégia e menos urgência.",
       photo: "/assets/testimonials/testimonial-andreia-nunes.webp",
@@ -254,9 +262,8 @@ export const payconLandingContent = {
     {
       id: "ana-luiza",
       name: "Ana Luiza",
-      role: "Supervisora de Legal Ops",
-      company: "Afya Educacional",
-      companySector: "Educação",
+      attribution: "Supervisora de Legal Ops na Afya Educacional",
+      sectorTag: "No educacional",
       quote:
         "O resultado foi muito positivo, pois conseguimos encerrar muitos processos e ter resultado significativo na provisão.",
       photo: "/assets/testimonials/testimonial-ana-luiza.webp",
@@ -264,9 +271,9 @@ export const payconLandingContent = {
     {
       id: "spc-brasil",
       name: "Equipe Jurídica",
-      role: "Time Jurídico",
-      company: "SPC Brasil",
-      companySector: "Serviços",
+      // site oficial não atribui cargo aqui — só o nome do cliente abaixo do nome
+      attribution: "SPC Brasil",
+      sectorTag: "No SPC Brasil",
       quote:
         "A automação otimizou a gestão de ofícios no SPC Brasil. Hoje, o time jurídico ganhou tempo, reduziu riscos e melhorou a eficiência operacional. O que antes exigia 4 pessoas por 2 dias inteiros, agora acontece de forma simples, rápida e precisa. Missão cumprida!",
       photo: "/assets/testimonials/testimonial-spc-brasil.webp",
@@ -274,9 +281,8 @@ export const payconLandingContent = {
     {
       id: "renata-lopes",
       name: "Renata Lopes",
-      role: "Coordenadora de Seguros",
-      company: "Braskem",
-      companySector: "Seguros",
+      attribution: "Coordenadora de Seguros na Braskem",
+      sectorTag: "Na indústria",
       quote:
         "Antes, nosso controle de sinistros era feito em planilhas, o que exigia muito esforço manual e gerava riscos de erros e perda de prazos. Com a Paycon, conseguimos transformar essa realidade: eles entenderam nossas necessidades, traduziram uma demanda complexa em um sistema robusto no Power Apps e entregaram uma solução que hoje é essencial para nossa gestão. Ganhamos agilidade, segurança e visibilidade estratégica para decisões mais assertivas.",
       photo: "/assets/testimonials/testimonial-renata-lopes.webp",
@@ -284,9 +290,8 @@ export const payconLandingContent = {
     {
       id: "marilia-saito",
       name: "Marília Saito",
-      role: "Intellectual Property",
-      company: "Braskem",
-      companySector: "Propriedade Intelectual",
+      attribution: "Intellectual Property – Braskem",
+      sectorTag: "Na indústria",
       quote:
         "Com a atuação da Paycon, conseguimos replicar o modelo da primeira fase para esses novos tipos documentais, melhorando significativamente a organização e facilitando o acesso às informações. Hoje, encontramos rapidamente os documentos e temos muito mais segurança e eficiência nos processos.",
       photo: "/assets/testimonials/testimonial-marilia-saito.webp",
@@ -294,9 +299,8 @@ export const payconLandingContent = {
     {
       id: "rafael-gomes",
       name: "Rafael Rodrigues Neves Gomes",
-      role: "Coordenador Eficiência Jurídica",
-      company: "Energisa",
-      companySector: "Energia",
+      attribution: "Coordenador Eficiência Jurídica - Energisa",
+      sectorTag: "Na energia",
       quote:
         "No final do dia, acredito que o grande ganho aqui não está apenas na questão operacional ou na execução das atividades em si. O verdadeiro valor está na segurança, na compliance e na mitigação de riscos em auditorias. Essa ferramenta trouxe uma estrutura robusta para o processo, garantindo que os pagamentos aos fornecedores sejam feitos corretamente, sempre dentro das regras contratuais e sem qualquer desvio de remuneração. Esse, sem dúvida, foi o principal ganho que esperávamos.",
       photo: "/assets/testimonials/testimonial-rafael-gomes.webp",
@@ -304,9 +308,8 @@ export const payconLandingContent = {
     {
       id: "julianne-lacerda",
       name: "Julianne Nunes de Lacerda",
-      role: "Advogada Tributarista",
-      company: "Braskem",
-      companySector: "Tributário",
+      attribution: "Advogada Tributarista na Braskem",
+      sectorTag: "Na indústria",
       quote:
         "Com a ferramenta desenvolvida pela Paycon, conseguimos transformar um processo que era totalmente manual e descentralizado em um sistema inteligente, intuitivo e 100% seguro. Hoje temos total controle sobre nossos documentos jurídicos, com padronização, rastreabilidade e autonomia para toda a equipe. A visualização em tempo real nos permite tomar decisões com mais rapidez e confiança. É uma solução que realmente trouxe agilidade e nos libertou de retrabalhos e dependência de outras áreas.",
       photo: "/assets/testimonials/testimonial-julianne-lacerda.webp",
@@ -314,9 +317,8 @@ export const payconLandingContent = {
     {
       id: "vanessa-joaquim",
       name: "Vanessa Cardoso Joaquim",
-      role: "Coordenadora Jurídica",
-      company: "Atacadão",
-      companySector: "Varejo",
+      attribution: "Coordenadora Jurídica no Atacadão",
+      sectorTag: "No varejo",
       quote:
         "Esse foi o projeto mais emocionante da minha vida profissional. O fechamento era minha maior dor, e hoje consigo gerar tudo sozinha, com precisão e tranquilidade. Ganhamos tempo, segurança e previsibilidade.",
       photo: "/assets/testimonials/testimonial-vanessa-joaquim.webp",
@@ -324,9 +326,8 @@ export const payconLandingContent = {
     {
       id: "guilherme-briggs",
       name: "Guilherme Briggs",
-      role: "Analista de Operações Jurídicas",
-      company: "Prudential",
-      companySector: "Seguros",
+      attribution: "Analista de Operações Jurídicas na Prudential",
+      sectorTag: "No setor de seguros",
       quote:
         "A solução desenvolvida pela Paycon trouxe uma verdadeira otimização de processos, gerando mais eficiência e eficácia em toda a nossa rotina de faturamento. Ganhamos em organização, controle e produtividade — com impactos diretos na qualidade do nosso dia a dia.",
       photo: "/assets/testimonials/testimonial-guilherme-briggs.webp",
@@ -334,9 +335,8 @@ export const payconLandingContent = {
     {
       id: "jessica-ferreira",
       name: "Jessica Ferreira",
-      role: "Coordenadora Jurídica",
-      company: "Monte Rodovias",
-      companySector: "Infraestrutura",
+      attribution: "Coordenadora Jurídica da Monte Rodovias",
+      sectorTag: "Em infraestrutura",
       quote:
         "Antes eu chegava a gastar um dia inteiro cruzando manualmente relatórios de base geral e contingência — ainda assim corríamos risco de erro. Com a nova ferramenta, toda a base de processos e valores está reunida em um único lugar, sem retrabalho e sem margem para falhas. Hoje faço leituras estratégicas em minutos, obtenho uma visão objetiva do contencioso e tomo decisões com muito mais rapidez e segurança.",
       photo: "/assets/testimonials/testimonial-jessica-ferreira.webp",
@@ -344,9 +344,8 @@ export const payconLandingContent = {
     {
       id: "elys-musso",
       name: "Elys Musso",
-      role: "Equipe de Legal Ops",
-      company: "Ford",
-      companySector: "Industrial",
+      attribution: "Equipe de Legal Ops - Ford",
+      sectorTag: "Na indústria",
       quote:
         "Antes da ferramenta da Paycon, o cálculo do ticket médio era uma rotina bastante complexa e manual, que tomava cerca de um dia e meio entre extração de bases, validações e conferências. Hoje, com a solução automatizada, conseguimos realizar toda a análise em cerca de 3 horas, com muito mais precisão e governança, podendo dedicar mais tempo em outras atividades estratégicas que realmente exigem a atuação humana. A ferramenta trouxe agilidade, confiabilidade e nos permite compartilhar os resultados rapidamente com os envolvidos. Foi um projeto que trouxe mudança significativa no dia a dia do Legal Ops.",
       photo: "/assets/testimonials/testimonial-elys-musso.webp",
@@ -354,9 +353,9 @@ export const payconLandingContent = {
     {
       id: "giulia-franco",
       name: "Giulia Franco",
-      role: "",
-      company: "Carrefour",
-      companySector: "Varejo",
+      // site oficial não atribui cargo aqui — só o nome do cliente
+      attribution: "Carrefour",
+      sectorTag: "No varejo",
       quote: "Antes, 8 pessoas perdiam tempo em uma tarefa simples. Agora, com um clique, o robô faz tudo. Ganhamos tempo e segurança jurídica.",
       photo: "/assets/testimonials/testimonial-giulia-franco.webp",
     },
@@ -368,20 +367,45 @@ export const payconLandingContent = {
     steps: [
       {
         step: 1,
+        stepLabel: "PASSO 01",
         title: "Diagnóstico",
         description:
-          "Entendemos como você e sua equipe realmente trabalham e quais são os desafios operacionais que as automações poderiam resolver",
+          "Tudo começa com escuta. Mapeamos os processos atuais do seu negócio, identificamos gargalos, riscos e oportunidades, e entendemos a fundo as necessidades reais antes de propor qualquer solução. É a base que garante que o projeto resolva o problema certo, não apenas o sintoma.",
       },
       {
         step: 2,
-        title: "Desenho da solução",
-        description: "Mapeamos e desenvolvemos automações que fazem sentido",
+        stepLabel: "PASSO 02",
+        title: "Desenho da Solução",
+        description:
+          "Com o diagnóstico em mãos, desenhamos a solução sob medida: fluxos, integrações, automações e regras de negócio pensados para o seu contexto específico. Nada de fórmula pronta — cada solução é projetada para gerar eficiência real e se encaixar na forma como sua empresa trabalha.",
       },
       {
         step: 3,
+        stepLabel: "PASSO 03",
+        title: "Desenvolvimento",
+        description:
+          "É hora de colocar a mão na massa. Nossa equipe transforma o desenho da solução em algo funcional, testado e robusto, seguindo boas práticas técnicas e mantendo você informado em cada etapa do processo. Transparência e qualidade caminham juntas aqui.",
+      },
+      {
+        step: 4,
+        stepLabel: "PASSO 04",
+        title: "Auditoria",
+        description:
+          "Antes de qualquer entrega, validamos tudo com rigor. Revisamos processos, testamos cenários e conferimos que a solução atende exatamente ao que foi planejado — com segurança, precisão e conformidade. É o nosso compromisso com a qualidade em cada detalhe.",
+      },
+      {
+        step: 5,
+        stepLabel: "PASSO 05",
         title: "Implementação",
         description:
-          "Sem traumas, respeitando seu ambiente tecnológico já existente, adaptamos as automações gerando rápida adesão e rápidos resultados",
+          "Com tudo validado, colocamos a solução no ar. Acompanhamos de perto a virada de chave, oferecendo suporte próximo à sua equipe para garantir uma transição tranquila e sem impactos na operação do dia a dia.",
+      },
+      {
+        step: 6,
+        stepLabel: "PASSO 06",
+        title: "Feedbacks",
+        description:
+          "O projeto não termina na entrega. Acompanhamos os resultados, ouvimos o retorno da sua equipe e ajustamos o que for necessário. Essa escuta contínua é o que transforma um projeto entregue em uma solução que realmente evolui com o seu negócio.",
       },
     ] satisfies MethodStep[],
     cta: { label: "QUERO UM DIAGNÓSTICO GRATUITO", placement: "metodo" },
@@ -411,21 +435,21 @@ export const payconLandingContent = {
       id: "ivan-rocha",
       name: "Ivan Rocha",
       role: "Sócio Administrador",
-      bio: "Advogado, consultor, auditor. Experiência com consultivo e contencioso trabalhista. Especialista em Design Thinking de sistemas jurídicos.",
+      bio: "Ivan Rocha é sócio-administrador da Paycon e atua na interseção entre Direito, gestão de processos e inovação tecnológica. Advogado, consultor e auditor, possui experiência em consultivo e contencioso trabalhista, análise de operações jurídicas e estruturação de soluções voltadas à eficiência, segurança e mitigação de riscos.\n\nEspecialista em Design Thinking aplicado a sistemas jurídicos, contribui para a compreensão das necessidades dos departamentos jurídicos e para o desenho de soluções aderentes à realidade dos profissionais que utilizarão a tecnologia, além do RH e Financeiro. Com experiência anterior em auditoria e consultoria, participou da liderança de projetos de grande porte relacionados à identificação e recuperação de depósitos judiciais, combinando análise documental, atuação jurídica e estruturação de controles financeiros.",
       photo: "/assets/team/team-ivan-rocha.webp",
     },
     {
       id: "thiago-palma",
       name: "Thiago Palma",
-      role: "Sócio Administrador",
-      bio: "Advogado, especialista em automação de tarefas e gestão de projetos.",
+      role: "CEO",
+      bio: "Thiago Palma é CEO da Paycon e atua na interseção entre Direito, tecnologia, gestão de projetos e transformação de processos.\n\nAdvogado e especialista em automação, possui experiência na identificação de atividades manuais, no redesenho de fluxos operacionais e na implementação de soluções tecnológicas voltadas principalmente para departamentos jurídicos e escritórios de advocacia. Com atuação voltada à automação de processos, gestão de projetos e inteligência de dados, lidera a estruturação de soluções que conectam pessoas, processos e tecnologia. Seu trabalho envolve o diagnóstico de operações complexas, o redesenho de fluxos, a definição de regras de negócio e a implantação de automações capazes de gerar produtividade, governança, rastreabilidade e segurança para departamentos jurídicos e empresas.",
       photo: "/assets/team/team-thiago-palma.webp",
     },
     {
       id: "thiago-teles",
       name: "Thiago Teles",
       role: "Sócio",
-      bio: "Advogado programador, responsável pela gestão das rotinas e planejamento de projetos contínuos.",
+      bio: "Thiago Teles Rodrigues é sócio da Paycon e atua na convergência entre Direito, programação, gestão operacional e desenvolvimento de pessoas.\n\nAdvogado programador, possui experiência na estruturação de rotinas, planejamento de projetos contínuos e desenvolvimento de soluções tecnológicas voltadas à automação de processos jurídicos e administrativos.\n\nNa Paycon, participa da organização e evolução das operações, contribuindo para a definição de padrões de desenvolvimento, distribuição das atividades, acompanhamento dos projetos e melhoria contínua das soluções entregues aos clientes. Combina conhecimento jurídico, programação e visão operacional para estruturar processos, orientar equipes e assegurar a evolução contínua das soluções desenvolvidas pela empresa.\n\nNa Paycon, contribui para transformar necessidades complexas em projetos tecnicamente organizados, escaláveis e orientados à eficiência, atuando também na formação dos analistas responsáveis pela construção e sustentação das automações.",
       photo: "/assets/team/team-thiago-teles.webp",
     },
   ] satisfies TeamMember[],
@@ -449,6 +473,7 @@ export const payconLandingContent = {
     { id: "cea", name: "C&A", logo: "/assets/partners/partner-cea.webp" },
     { id: "braskem", name: "Braskem", logo: "/assets/partners/partner-braskem.webp" },
     { id: "bat-brasil", name: "BAT Brasil", logo: "/assets/partners/partner-bat-brasil.webp" },
+    { id: "atvos", name: "Atvos", logo: "/assets/partners/partner-atvos.png" },
     { id: "ambev", name: "Ambev", logo: "/assets/partners/partner-ambev.webp" },
     { id: "cogna", name: "Cogna", logo: "/assets/partners/partner-cogna.webp" },
     { id: "lactalis", name: "Lactalis", logo: "/assets/partners/partner-lactalis.webp" },
@@ -459,10 +484,10 @@ export const payconLandingContent = {
     { id: "ford", name: "Ford", logo: "/assets/partners/partner-ford.webp" },
     { id: "energisa", name: "Energisa", logo: "/assets/partners/partner-energisa.webp" },
     { id: "cosan", name: "Cosan", logo: "/assets/partners/partner-cosan.webp" },
-    { id: "dasa", name: "Dasa", logo: "/assets/partners/partner-dasa.webp" },
     { id: "solar-coca-cola", name: "Solar Coca-Cola", logo: "/assets/partners/partner-solar-coca-cola.webp" },
     { id: "samsung", name: "Samsung", logo: "/assets/partners/partner-samsung.webp" },
     { id: "prudential", name: "Prudential", logo: "/assets/partners/partner-prudential.webp" },
+    { id: "owens-illinois", name: "Owens-Illinois", logo: "/assets/partners/partner-owens-illinois.png" },
     { id: "mondelez", name: "Mondelēz", logo: "/assets/partners/partner-mondelez.webp" },
     { id: "motorola", name: "Motorola", logo: "/assets/partners/partner-motorola.webp" },
     { id: "loggi", name: "Loggi", logo: "/assets/partners/partner-loggi.webp" },
@@ -496,17 +521,18 @@ export const payconLandingContent = {
     errorTitle: "Erro ao enviar",
     errorBody: "Não foi possível enviar. Tente novamente.",
     fields: [
-      { id: "name", name: "name", label: "Nome", type: "text", required: true },
-      { id: "email", name: "email", label: "E-mail", type: "email", required: true },
-      { id: "phone", name: "celular", label: "Celular", type: "tel", required: true },
-      { id: "company", name: "empresa", label: "Nome da empresa", type: "text", required: true },
-      { id: "role", name: "cargo", label: "Cargo", type: "text", required: true, placeholder: "Seu cargo" },
+      { id: "name", name: "name", label: "Nome:", type: "text", required: true },
+      { id: "email", name: "email", label: "E-mail:", type: "email", required: true },
+      { id: "phone", name: "celular", label: "Celular:", type: "tel", required: true },
+      { id: "company", name: "empresa", label: "Nome da empresa:", type: "text", required: true },
+      // Cargo e Você atua em não têm asterisco/`required` no site oficial (verificado no DOM: <input required=false>)
+      { id: "role", name: "cargo", label: "Cargo:", type: "text", required: false, placeholder: "Seu cargo" },
       {
         id: "sector",
         name: "atua_em",
-        label: "Você atua em",
+        label: "Você atua em:",
         type: "select",
-        required: true,
+        required: false,
         placeholder: "Selecione uma opção",
         options: [
           { value: "privada", label: "Empresa privada/departamento jurídico" },

@@ -4,7 +4,7 @@ import { ParticleStage } from "./components/ParticleStage/ParticleStage";
 import { Preloader } from "./components/Preloader/Preloader";
 import { PageFooter } from "./components/PageFooter/PageFooter";
 import { PayconHero } from "./sections/PayconHero/PayconHero";
-import { AnalysisScene } from "./sections/AnalysisScene/AnalysisScene";
+import { SolutionsIntroScene } from "./sections/SolutionsIntroScene/SolutionsIntroScene";
 import { SolutionsScene } from "./sections/SolutionsScene/SolutionsScene";
 import { ContactFormScene } from "./sections/ContactFormScene/ContactFormScene";
 import { TechnologyScene } from "./sections/TechnologyScene/TechnologyScene";
@@ -65,15 +65,25 @@ function App() {
       <div id="smooth-wrapper">
         <div id="smooth-content">
           {/*
-            Ordem das seções alinhada à do site oficial: hero → soluções →
-            formulário → clientes → diferenciais → depoimentos → método →
-            sobre → CTA final. Antes o formulário ficava no fim (junto do CTA)
-            e Diferenciais vinha antes de Clientes — invertido em relação ao
-            site.
+            Ordem das seções alinhada à do site oficial: hero (com métricas
+            embutidas) → soluções P2P (intro, seção própria) → soluções (os
+            8 produtos juntos numa sequência só — ver comentário em
+            SolutionsScene) → formulário → clientes (seção dedicada, com
+            título) → diferenciais → depoimentos → método → sobre → CTA final.
+
+            A marquee de logos logo após a hero (que existe no site oficial)
+            foi removida a pedido: alguns logos apareciam cortados nas bordas
+            e o do Afya trazia fundo branco embutido no arquivo, destoando do
+            tema escuro. A lista completa de parceiros já aparece na seção
+            "Clientes" dedicada (`PartnersScene`, mais abaixo).
+
+            "Soluções P2P" era a primeira linha da grade pinada de
+            `SolutionsScene` — virou `SolutionsIntroScene`, seção própria e
+            independente, a pedido.
           */}
           <main id="main-content">
             <PayconHero />
-            <AnalysisScene />
+            <SolutionsIntroScene />
             <SolutionsScene />
             <ContactFormScene />
             <PartnersScene />

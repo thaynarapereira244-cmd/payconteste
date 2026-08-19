@@ -13,10 +13,11 @@
   align-items: start;
 }
 
-/* ---------- coluna dos sócios ---------- */
+/* ---------- coluna dos sócios ----------
+   Sem `position: sticky`: as bios completas (vários parágrafos cada) deixaram
+   esta coluna bem mais alta que antes — fixá-la no topo não faz mais
+   sentido, ela já acompanha o próprio comprimento. */
 .team {
-  position: sticky;
-  top: 7.5rem;
   display: flex;
   flex-direction: column;
   gap: 1.25rem;
@@ -37,34 +38,45 @@
   gap: 0.75rem;
 }
 
+/*
+  Cartão em coluna (foto + nome no topo, bio abaixo) — não mais foto+texto
+  lado a lado. Com bios de vários parágrafos, a versão lado a lado deixava a
+  coluna de texto estreita demais e o card com uma proporção muito alta e
+  desequilibrada.
+*/
 .teamCard {
   position: relative;
-  display: grid;
-  grid-template-columns: auto minmax(0, 1fr);
-  gap: 1rem;
-  padding: 1.15rem;
+  padding: 1.4rem;
   border: 1px solid var(--paycon-line);
   border-radius: 16px;
   background: rgba(12, 15, 24, 0.72);
 }
 
-/* filete técnico ligando os retratos entre si */
+/* filete técnico ligando os cartões entre si */
 .teamCard:not(:last-child)::after {
   content: "";
   position: absolute;
-  left: 2.55rem;
+  left: 2.05rem;
   bottom: -0.75rem;
   width: 1px;
   height: 0.75rem;
   background: linear-gradient(180deg, var(--paycon-blue-500), transparent);
 }
 
+.teamHead {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 0.9rem;
+}
+
 .teamPhoto {
-  width: 72px;
-  height: 72px;
+  width: 60px;
+  height: 60px;
   border-radius: 14px;
   object-fit: cover;
   border: 1px solid var(--paycon-line-strong);
+  flex-shrink: 0;
 }
 
 .teamInfo {
@@ -80,13 +92,16 @@
 .teamRole {
   font-size: 0.76rem;
   color: var(--paycon-blue-200);
-  margin-bottom: 0.35rem;
 }
 
 .teamBio {
-  font-size: 0.78rem;
+  font-size: 0.82rem;
   color: var(--paycon-muted);
-  line-height: 1.5;
+  line-height: 1.62;
+}
+
+.teamBio + .teamBio {
+  margin-top: 0.7rem;
 }
 
 /* ---------- coluna institucional ---------- */
